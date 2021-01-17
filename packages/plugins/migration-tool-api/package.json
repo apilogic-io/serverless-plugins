@@ -1,0 +1,40 @@
+{
+  "name": "@apilogic/migration-tool-api",
+  "version": "1.0.0",
+  "composite": true,
+  "description": "Universal sql/no-sql database serverless migration tool",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apilogic-io/serverless-plugins.git",
+    "directory": "packages/plugins/migration-tool-api"
+  },
+  "keywords": [
+    "AWS ES Serverless Migration plugin",
+    "Serverless",
+    "Plugin",
+    "Local",
+    "Offline",
+    "Elasticsearch",
+    "ES"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf ./lib",
+    "compile": "tsc -b tsconfig.build.json  --force --verbose",
+    "prepare": "npm run build"
+  },
+  "author": "Vitalie Robu",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.6",
+    "ts-node": "^9.1.1"
+  },
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.10.0"
+  }
+}

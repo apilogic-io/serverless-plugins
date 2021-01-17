@@ -1,0 +1,7 @@
+{
+  "packages": [
+    "packages/plugins/migration-tool-api",
+    "packages/plugins/migration-tool-serverless"
+  ],
+  "version": "1.0.0"
+}

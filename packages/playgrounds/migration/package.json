@@ -1,0 +1,21 @@
+{
+  "name": "@apilogic/serverless-migration-playground",
+  "version": "1.0.0",
+  "description": "Playground for migrations",
+  "main": "index.js",
+  "author": "Vitalie Robu",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@apilogic/migration-tool-api": "^1.0.0",
+    "@apilogic/migration-tool-serverless": "^1.0.0",
+    "elasticsearch": "^16.7.2",
+    "http-aws-es": "^6.0.0",
+    "serverless": "^2.18.0",
+    "serverless-dynamodb-local": "^0.2.39",
+    "serverless-offline": "^6.8.0"
+  },
+  "devDependencies": {
+    "serverless": "^2.18.0"
+  }
+}

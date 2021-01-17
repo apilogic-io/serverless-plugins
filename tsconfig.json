@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES6",
+    "sourceMap": true,
+    "declaration": true,
+    "baseUrl": "./packages/plugins",
+    "paths": {
+      "@apilogic/migration-tool-api": ["migration-tool-api/src"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "lib"
+  ]
+}

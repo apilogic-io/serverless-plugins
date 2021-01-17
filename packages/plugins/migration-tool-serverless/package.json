@@ -1,0 +1,41 @@
+{
+  "name": "@apilogic/migration-tool-serverless",
+  "version": "1.0.0",
+  "description": "Serverless migration plugin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apilogic-io/serverless-plugins.git",
+    "directory": "packages/plugins/migration-tool-serverless"
+  },
+  "keywords": [
+    "AWS ES Serverless Migration plugin",
+    "Serverless",
+    "Plugin",
+    "Local",
+    "Offline",
+    "Elasticsearch",
+    "ES"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "npm run compile",
+    "clean": "rm -rf ./lib",
+    "compile": "tsc -b tsconfig.build.json --force --verbose",
+    "prepare": "npm run build"
+  },
+  "author": "Vitalie Robu",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/serverless": "^1.78.18",
+    "serverless": "^2.18.0",
+    "ts-node": "^9.1.1"
+  },
+  "dependencies": {
+    "@apilogic/migration-tool-api": "^1.0.0",
+    "chalk": "^4.1.0"
+  }
+}

@@ -1,0 +1,11 @@
+/packages/playgrounds/migration/.serverless_plugins
+**/node_modules
+/packages/playgrounds/migration/.migrations_build
+**/lib
+**/tsconfig.tsbuildinfo
+**/tsconfig.build.tsbuildinfo
+/.idea/
+/*.iml
+**/*.log
+/yarn.lock
+/packages/plugins/migration-tool-api/yarn.lock
