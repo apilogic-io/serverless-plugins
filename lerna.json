@@ -3,5 +3,5 @@
     "packages/migration-tool-api",
     "packages/migration-tool-serverless"
   ],
-  "version": "1.0.6"
+  "version": "1.0.7"
 }
