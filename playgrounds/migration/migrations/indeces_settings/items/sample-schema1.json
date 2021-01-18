@@ -1,0 +1,8 @@
+{
+  "created": {
+    "type": "date"
+  },
+  "name": {
+    "type": "keyword"
+  }
+}

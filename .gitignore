@@ -9,3 +9,5 @@
 **/*.log
 /yarn.lock
 /packages/migration-tool-api/yarn.lock
+/playgrounds/migration/package-lock.json
+/package-lock.json

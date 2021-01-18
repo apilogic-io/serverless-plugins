@@ -59,20 +59,6 @@ export class ApiLogicDataMigration {
     }
   }
 
-  public async rollbackMigrations (): Promise<string[]> {
-    const [migrations, compiler] = await this.bootstrap();
-    const migrationsToRun = migrations.filter((migration) => migration.isApplied).slice(-1, migrations.length);
-    try {
-      for (let i = 0; i < migrationsToRun.length; i++) {
-        // this.log(`Rolling back ${migrationsToRun[i].id} - ${migrationsToRun[i].name}`)
-        await migrationsToRun[i].rollback()
-      }
-      return migrationsToRun.map((migration) => migration.id)
-    } finally {
-      await compiler.cleanup()
-    }
-  }
-
   private async bootstrap (): Promise<[Migration[], Compiler]> {
     const compiler = new TypeScriptCompiler({
       cwd: this.cwd,
@@ -89,7 +75,7 @@ export class ApiLogicDataMigration {
       files
       .map((file) => {
         const fileName = path.basename(file, '.js');
-        const match = fileName.match(/^(?<id>\d{14})_(?<name>\w+)/);
+        const match = fileName.match(/^(?<id>__V\d*__)(?<name>\w+)/);
         if (!match || !match.groups || !match.groups.id || !match.groups.name) {
           return null
         } else {
@@ -110,20 +96,6 @@ export class ApiLogicDataMigration {
     return [migrations, compiler]
   }
 
-  // private async ensureMigrationTable (): Promise<void> {
-  //   // await this.dataAPI.query(
-  //   //   'CREATE TABLE IF NOT EXISTS __migrations__ (id varchar NOT NULL UNIQUE)',
-  //   //   undefined,
-  //   //   { includeResultMetadata: false }
-  //   // )
-  // }
-
-  // private log (message: string): void {
-  //   // if (typeof this.logger === 'function') {
-  //   //   this.logger(message)
-  //   // }
-  // }
-// }
 }
 export default ApiLogicDataMigration
 

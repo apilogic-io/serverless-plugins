@@ -26,7 +26,7 @@ provider:
 
 plugins:
   - serverless-dynamodb-local
-  - migration-tool-serverless
+  - "@apilogic/migration-tool-serverless"
   - serverless-offline
 custom:
   accountId: sdsfsdf

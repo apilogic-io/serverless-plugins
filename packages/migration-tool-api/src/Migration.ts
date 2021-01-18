@@ -1,5 +1,5 @@
 import {ApiClient} from "./clients/ApiClient";
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import * as fs from 'fs';
 
 export class Migration {
@@ -26,21 +26,10 @@ export class Migration {
   public async apply (): Promise<void> {
     if (this.isApplied) { return }
     let that = this;
-    const { mappings, create, checkIndex } = await import(that.file);
     const workingDir = this.file.match(/(.*)[\/\\]/)[1]||'';
-    const indexExist =  await checkIndex(this.dataAPI);
-    if(!indexExist) {
-      await create(this.dataAPI, fs, workingDir);
-    }
-    await mappings(this.dataAPI, fs, workingDir);
+    const { up } = await import(that.file);
+    await up(this.dataAPI, workingDir);
     await this.migrationAPI.load(this.insertPayload());
-  }
-
-  public async rollback (): Promise<void> {
-    if (!this.isApplied) { return }
-    const { down } = await import(this.file);
-    await down(this.dataAPI, this);
-    await this.migrationAPI.load(this.removePayload());
   }
 
   private insertPayload() {
@@ -53,19 +42,6 @@ export class Migration {
       },
       "attributeValues" : {
         "migration_id" : {"S": this.id }
-      }
-    }
-  }
-
-  private removePayload() {
-    return {
-      "version" : "2017-02-28",
-      "operation" : "PutItem",
-      "key": {
-        "id" : this.id
-      },
-      "attributeValues" : {
-        "id" : this.id
       }
     }
   }

@@ -7,8 +7,8 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "@apilogic/migration-tool-api": "^1.0.0",
-    "@apilogic/migration-tool-serverless": "^1.0.0",
+    "@apilogic/migration-tool-api": "^1.0.12",
+    "@apilogic/migration-tool-serverless": "^1.0.12",
     "elasticsearch": "^16.7.2",
     "http-aws-es": "^6.0.0",
     "serverless": "^2.18.0",

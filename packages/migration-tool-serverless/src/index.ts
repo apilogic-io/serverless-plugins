@@ -73,7 +73,6 @@ class ApiLogicDataMigrationServerless implements Plugin {
 
         this.hooks = {
             'migrations:apply:exec': this.applyMigrations.bind(this),
-            'migrations:rollback:exec': this.rollbackMigrations.bind(this),
             'migrations:status:exec': this.fetchMigrationStatus.bind(this)
         }
     }
@@ -101,11 +100,6 @@ class ApiLogicDataMigrationServerless implements Plugin {
     private async applyMigrations (): Promise<void> {
         const ids = await this.manager().applyMigrations();
         ids.forEach((id) => this.log(`${chalk.bgBlue(id)} applied.`))
-    }
-
-    private async rollbackMigrations (): Promise<void> {
-        const ids = await this.manager().rollbackMigrations();
-        ids.forEach((id) => this.log(`${chalk.greenBright(id)} rolled back.`))
     }
 
     private async fetchMigrationStatus (): Promise<void> {

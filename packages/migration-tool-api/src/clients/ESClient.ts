@@ -4,6 +4,7 @@ import {DataApiClientModule} from "../DataApiClientModule";
 import {EnvironmentCredentials} from 'aws-sdk';
 import {httpAWSESClass} from 'http-aws-es';
 import ClientConfig = DataApiClientModule.ClientConfig;
+import * as fs from "fs";
 
 export class ESClient implements ApiClient {
     private readonly client: Client;
@@ -11,6 +12,12 @@ export class ESClient implements ApiClient {
     constructor(config: ClientConfig) {
         this.client = ESClient.initClient(config)
     }
+
+    getClient() {
+        return this.client;
+    }
+
+
 
     private static initClient(config: ClientConfig) {
 
@@ -59,20 +66,46 @@ export class ESClient implements ApiClient {
         return undefined;
     }
 
-    async createIndexAndPutMappings(index: string, template: any): Promise<any> {
-        const exists = await this.client.indices.exists({index: index});
-        if(!exists) {
-            const create = await this.client.indices.create( {index: index});
-            if(create) {
-                return this.client.indices.putMapping({
-                    index,
-                    type: 'staff',
-                    template
-                })
-            }
-        }
+    public async createIndex(index: string,
+                             workingDir: string,
+                             settingsPath: string,
+                             mappingsPath: string) {
+        const indexExist =  await this.client.indices.exists({ index });
+        if(!indexExist) {
+            const settings = JSON.parse(fs.readFileSync(workingDir + settingsPath,  "utf8"));
+            const body = {
+                settings
+            };
+            const template = {
+                index,
+                body
 
+            };
+            await this.client.indices.create(template);
+        }
+        await this.mappingsPayload(index, workingDir, mappingsPath);
 
     }
+
+    public async updateIndex(index: string,
+                             workingDir: string,
+                             mappingsPath: string) {
+        return this.mappingsPayload(index, workingDir, mappingsPath);
+    }
+
+
+
+    private async mappingsPayload(index: string, workingDirectory: string, mappingsPath: string) {
+        const properties = JSON.parse(fs.readFileSync(workingDirectory + mappingsPath, "utf-8"));
+        const body = {
+            properties
+        };
+        const template = {
+            index,
+            body
+        };
+        return this.client.indices.putMapping(template);
+    }
+
 
 }

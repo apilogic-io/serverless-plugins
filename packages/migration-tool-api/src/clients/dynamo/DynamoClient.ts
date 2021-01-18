@@ -15,6 +15,10 @@ export class DynamoClient implements ApiClient {
         this.client = new DynamoDB({ ...config.config, ...options });
     }
 
+    public getClient() {
+        return this.client;
+    }
+
     public async load(payload): Promise<object | null> {
         try {
             switch (payload.operation) {
