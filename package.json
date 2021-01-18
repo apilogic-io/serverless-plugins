@@ -2,8 +2,8 @@
   "name": "@apilogic/apilogic",
   "private": true,
   "workspaces": [
-    "packages/plugins/*",
-    "packages/playgrounds/*"
+    "packages/*",
+    "playgrounds/*"
   ],
   "devDependencies": {
     "lerna": "^3.22.1",

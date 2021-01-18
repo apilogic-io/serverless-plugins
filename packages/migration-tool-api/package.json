@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "build": "npm run clean && npm run compile",
-    "clean": "rm -rf ./lib",
+    "clean": "rm -rf lib",
     "compile": "tsc -b tsconfig.build.json  --force --verbose",
     "prepare": "npm run build"
   },
