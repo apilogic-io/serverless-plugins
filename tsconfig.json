@@ -5,7 +5,7 @@
     "target": "ES6",
     "sourceMap": true,
     "declaration": true,
-    "baseUrl": "./packages/plugins",
+    "baseUrl": "./packages",
     "paths": {
       "@apilogic/migration-tool-api": ["migration-tool-api/src"]
     }
