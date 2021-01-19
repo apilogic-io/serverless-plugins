@@ -3,7 +3,7 @@ import {Config} from "./clients/config/Config";
 import {ApiClient} from "./clients/ApiClient";
 import {DynamoClient} from "./clients/dynamo/DynamoClient";
 
-export module DataApiClientModule {
+export namespace DataApiClientModule {
 
     export interface ClientConfig {
         clientType?: string;

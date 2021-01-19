@@ -8,6 +8,7 @@ import * as fs from "fs";
 
 export class ESClient implements ApiClient {
     private readonly client: Client;
+    private _payload;
 
     constructor(config: ClientConfig) {
         this.client = ESClient.initClient(config)
@@ -16,8 +17,6 @@ export class ESClient implements ApiClient {
     getClient() {
         return this.client;
     }
-
-
 
     private static initClient(config: ClientConfig) {
 
@@ -62,7 +61,8 @@ export class ESClient implements ApiClient {
     }
 
 
-    load(payload): Promise<object | null> {
+    load(payload): Promise<unknown | null> {
+        this._payload = payload;
         return undefined;
     }
 

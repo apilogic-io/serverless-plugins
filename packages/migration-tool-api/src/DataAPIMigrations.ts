@@ -1,29 +1,23 @@
-import {DataApiClientModule} from "./DataApiClientModule";
+import {DataApiClientModule} from './DataApiClientModule';
 import {Migration} from './Migration';
-import {TypeScriptCompiler} from "./TypeScriptCompiler";
-import {Compiler, CompilerDerived} from "./Compiler";
-import * as path from "path";
-
-// const ID_FORMAT = 'yyyyMMddHHmmss';
+import {TypeScriptCompiler} from './TypeScriptCompiler';
+import * as path from 'path';
+import {Compiler} from "./Compiler";
 
 export interface DataAPIMigrationsConfig {
   cwd?: string;
   migrationsFolder?: string;
   typescript?: boolean;
-  logger?: Function;
-  compiler?: CompilerDerived;
   isLocal?: boolean;
   dataAPI: DataApiClientModule.DataApiClient;
   migrationAPI: DataApiClientModule.DataApiClient;
 }
-
 
 export class ApiLogicDataMigration {
   public readonly cwd: string;
   public readonly dataAPI: DataApiClientModule.DataApiClient;
   public readonly migrationAPI: DataApiClientModule.DataApiClient;
   public readonly migrationsPath: string;
-  protected compiler: CompilerDerived;
   protected buildPath: string;
 
   constructor({
@@ -35,7 +29,6 @@ export class ApiLogicDataMigration {
     this.cwd = cwd || process.cwd();
     this.dataAPI = dataAPI;
     this.migrationAPI = migrationAPI;
-    this.compiler = TypeScriptCompiler;
     this.migrationsPath = path.join(this.cwd, migrationsFolder || 'migrations');
     this.buildPath = path.join(this.cwd, '.migrations_build')
   }
@@ -49,10 +42,7 @@ export class ApiLogicDataMigration {
     const [migrations, compiler] = await this.bootstrap();
     const migrationsToRun = migrations.filter((migration) => !migration.isApplied);
     try {
-      for (let i = 0; i < migrationsToRun.length; i ++) {
-        // this.log(`Applying ${migrationsToRun[i].id} - ${migrationsToRun[i].name}`)
-        await migrationsToRun[i].apply()
-      }
+      migrationsToRun.forEach(async (migration) => await migration.apply());
       return migrationsToRun.map((migration) => migration.id)
     } finally {
       await compiler.cleanup()
@@ -64,7 +54,6 @@ export class ApiLogicDataMigration {
       cwd: this.cwd,
       migrationsPath: this.migrationsPath,
       buildPath: this.buildPath
-      // logger: this.log.bind(this)
     });
     const appliedMigrationIds = await this.getAppliedMigrationIds();
     let files = await compiler.compile();
@@ -77,11 +66,11 @@ export class ApiLogicDataMigration {
         const fileName = path.basename(file, '.js');
         const match = fileName.match(/^(?<id>__V\d*__)(?<name>\w+)/);
         if (!match || !match.groups || !match.groups.id || !match.groups.name) {
-          return null
+          return null;
         } else {
           const id = match.groups.id;
           const name = match.groups.name;
-          return { id, name, file }
+          return { id, name, file };
         }
       })
       .filter((data) => data !== null)

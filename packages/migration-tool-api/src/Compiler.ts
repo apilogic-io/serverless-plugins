@@ -25,8 +25,3 @@ export abstract class Compiler {
 
   abstract cleanup (): Promise<void>
 }
-
-export type CompilerClass = typeof Compiler
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CompilerDerived extends CompilerClass {}

@@ -19,7 +19,7 @@ export class DynamoClient implements ApiClient {
         return this.client;
     }
 
-    public async load(payload): Promise<object | null> {
+    public async load(payload): Promise<unknown | null> {
         try {
             switch (payload.operation) {
                 case 'GetItem':
@@ -54,7 +54,7 @@ export class DynamoClient implements ApiClient {
         }
     }
 
-    private async getItem(payload: any): Promise<object | null> {
+    private async getItem(payload: any): Promise<unknown | null> {
         const { consistentRead = false } = payload;
         const result = await this.client
             .getItem({
@@ -65,10 +65,10 @@ export class DynamoClient implements ApiClient {
             .promise();
 
         if (!result.Item) return null;
-        return unmarshall(result.Item);
+        return unmarshall(result.Item, true);
     }
 
-    private async putItem(payload): Promise<object | null> {
+    private async putItem(payload): Promise<unknown | null> {
         const params = this.getPutAttributes(payload);
         await this.client
             .putItem(params.params)
@@ -104,7 +104,7 @@ export class DynamoClient implements ApiClient {
         }
     }
 
-    private async transactWriteItem(payload): Promise<object | null> {
+    private async transactWriteItem(payload): Promise<unknown | null> {
 
         const transactionParams = payload.transactItems.map(transaction => {
             switch (transaction.operation) {
@@ -151,7 +151,7 @@ export class DynamoClient implements ApiClient {
             .promise();
 
         return {
-            items: items.map(item => unmarshall(item)),
+            items: items.map(item => unmarshall(item, true)),
             scannedCount,
             nextToken: resultNextToken ? Buffer.from(JSON.stringify(resultNextToken)).toString('base64') : null,
         };
@@ -175,7 +175,7 @@ export class DynamoClient implements ApiClient {
             }),
         };
         const { Attributes: updated } = await this.client.updateItem(params).promise();
-        return unmarshall(updated);
+        return unmarshall(updated, true);
     }
 
     private async deleteItem(payload) {
@@ -199,7 +199,7 @@ export class DynamoClient implements ApiClient {
             })
             .promise();
 
-        return unmarshall(deleted);
+        return unmarshall(deleted, true);
     }
     private async scan(payload) {
         const { filter, index, limit, consistentRead = false, nextToken, select, totalSegments, segment } = payload;
@@ -228,7 +228,7 @@ export class DynamoClient implements ApiClient {
         const { Items: items, ScannedCount: scannedCount, LastEvaluatedKey: resultNextToken = null } = await this.client.scan(params).promise();
 
         return {
-            items: items.map(item => unmarshall(item)),
+            items: items.map(item => unmarshall(item, true)),
             scannedCount,
             nextToken: resultNextToken ? Buffer.from(JSON.stringify(resultNextToken)).toString('base64') : null,
         };

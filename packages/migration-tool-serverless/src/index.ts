@@ -53,13 +53,6 @@ class ApiLogicDataMigrationServerless implements Plugin {
                             ...commonOptions
                         }
                     },
-                    rollback: {
-                        usage: 'Rollback the most recent (applied) migration.',
-                        lifecycleEvents,
-                        options: {
-                            ...commonOptions
-                        }
-                    },
                     status: {
                         usage: 'List the migrations that have been applied.',
                         lifecycleEvents,

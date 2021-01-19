@@ -1,4 +1,4 @@
 export interface ApiClient {
-    load(payload): Promise<object | null>;
+    load(payload): Promise<unknown | null>;
     getClient();
 }
