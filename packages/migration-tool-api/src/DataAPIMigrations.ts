@@ -42,7 +42,10 @@ export class ApiLogicDataMigration {
     const [migrations, compiler] = await this.bootstrap();
     const migrationsToRun = migrations.filter((migration) => !migration.isApplied);
     try {
-      migrationsToRun.forEach(async (migration) => await migration.apply());
+      for (let i = 0; i < migrationsToRun.length; i ++) {
+        // this.log(`Applying ${migrationsToRun[i].id} - ${migrationsToRun[i].name}`)
+        await migrationsToRun[i].apply()
+      }
       return migrationsToRun.map((migration) => migration.id)
     } finally {
       await compiler.cleanup()
