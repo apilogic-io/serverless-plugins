@@ -1,0 +1,8 @@
+{
+  "fields": {
+    "shortName":  "String",
+    "alpha3": "String",
+    "alpha2": "String",
+    "numeric": "Int"
+  }
+}

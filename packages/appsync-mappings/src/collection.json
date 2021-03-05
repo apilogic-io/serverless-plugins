@@ -1,0 +1,9 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "appsync-mappings": {
+      "description": "A blank schematic.",
+      "factory": "./appsync-mappings/index#appsyncMappings"
+    }
+  }
+}

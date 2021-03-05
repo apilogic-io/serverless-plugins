@@ -1,0 +1,12 @@
+{
+  "fields": {
+    "lat": "Float",
+    "long": "Float",
+    "type": "LocationType = POINT",
+    "general": "GeneralInput",
+    "iso": "IsoInput",
+    "shortDescription": "LocalesInput",
+    "longDescription": "LocalesInput",
+    "images": "[String]"
+  }
+}

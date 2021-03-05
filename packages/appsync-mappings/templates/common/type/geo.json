@@ -1,0 +1,35 @@
+{
+  "fields": [
+    {
+      "field_name" : "locationType",
+      "props" : {
+        "appsync": {
+          "type": "LocationType = POINT"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__type__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "coordinates",
+      "props" : {
+        "appsync": {
+          "type": "[Float!]!"
+        },
+        "dynamo": {
+          "type": "N",
+          "list": true,
+          "value": ["__long__", "__lat__"]
+        },
+        "es": {
+
+        }
+      }
+    }
+  ]
+}

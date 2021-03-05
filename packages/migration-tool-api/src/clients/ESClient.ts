@@ -14,7 +14,7 @@ export class ESClient implements ApiClient {
         this.client = ESClient.initClient(config)
     }
 
-    getClient() {
+    getClient(): Client {
         return this.client;
     }
 
@@ -61,6 +61,7 @@ export class ESClient implements ApiClient {
     }
 
 
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     load(payload): Promise<unknown | null> {
         this._payload = payload;
         return undefined;
@@ -69,7 +70,7 @@ export class ESClient implements ApiClient {
     public async createIndex(index: string,
                              workingDir: string,
                              settingsPath: string,
-                             mappingsPath: string) {
+                             mappingsPath: string): Promise<unknown> {
         const indexExist =  await this.client.indices.exists({ index });
         if(!indexExist) {
             const settings = JSON.parse(fs.readFileSync(workingDir + settingsPath,  "utf8"));
@@ -83,13 +84,13 @@ export class ESClient implements ApiClient {
             };
             await this.client.indices.create(template);
         }
-        await this.mappingsPayload(index, workingDir, mappingsPath);
+        return await this.mappingsPayload(index, workingDir, mappingsPath);
 
     }
 
     public async updateIndex(index: string,
                              workingDir: string,
-                             mappingsPath: string) {
+                             mappingsPath: string): Promise<unknown> {
         return this.mappingsPayload(index, workingDir, mappingsPath);
     }
 

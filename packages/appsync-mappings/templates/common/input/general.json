@@ -1,0 +1,6 @@
+{
+  "fields": {
+    "type": "String!",
+    "name": "Float"
+  }
+}

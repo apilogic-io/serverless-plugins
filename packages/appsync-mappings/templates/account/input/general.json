@@ -1,0 +1,10 @@
+{
+  "fields": {
+    "type": {
+      "field_type": "String!"
+    },
+    "name": {
+      "field_type": "Float"
+    }
+  }
+}

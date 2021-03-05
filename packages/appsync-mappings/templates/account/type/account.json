@@ -1,0 +1,127 @@
+{
+  "entity_name" : "Account",
+  "fields": [
+    {
+      "field_name" : "account_id",
+      "props" : {
+        "appsync": {
+          "field_type": "ID!"
+        },
+        "dynamo": {
+          "type": "S",
+          "isKey": true,
+          "value": "__AUTO__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "general",
+      "props" : {
+        "appsync": {
+          "type": "General"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path" : "../common/general",
+            "args": {
+              "type": "$context.arguments.account.general.type",
+              "name" : "$context.arguments.account.general.name"
+            }
+          }
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "iso",
+      "props" : {
+        "appsync": {
+          "type": "Iso"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": "../coomon/iso/$context.arguments.location.type/[\"$context.arguments.location.long\", \"$context.arguments.location.lat\"]"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "geo",
+      "props" : {
+        "appsync": {
+          "type": "Geo"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path" : "../common/geo",
+            "args": {
+              "type": "",
+              "long" : "",
+              "lat": ""
+            }
+          }
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "shortDescription",
+      "props" : {
+        "appsync": {
+          "type": "Locales",
+          "mandatory": false
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": "locales/shortDescription"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "longDescription",
+      "props" : {
+        "appsync": {
+          "type": "Locales",
+          "mandatory": false
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": "locales/longDescription"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "images",
+      "props" : {
+        "appsync": {
+          "type": "[String]",
+          "mandatory": false
+        },
+        "dynamo": {
+          "type": "LS",
+          "value": "$context.arguments.location.images"
+        },
+        "es": {
+
+        }
+      }
+    }
+  ]
+}

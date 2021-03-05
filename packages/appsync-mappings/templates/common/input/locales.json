@@ -1,0 +1,6 @@
+{
+  "fields": {
+    "code": "String!",
+    "default": "Boolean"
+  }
+}

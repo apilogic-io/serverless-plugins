@@ -1,6 +1,14 @@
 import {ApiClient} from './clients/ApiClient';
 import {v4 as uuidv4} from 'uuid';
 
+export interface MigrationsConfig {
+  id?: string;
+  file?: string;
+  isApplied?: boolean;
+  dataAPI: ApiClient;
+  migrationAPI: ApiClient;
+}
+
 export class Migration {
 
   public readonly id: string;
@@ -15,7 +23,7 @@ export class Migration {
                 isApplied,
                 dataAPI,
                 migrationAPI
-              }) {
+              } :MigrationsConfig) {
     this.id = id;
     this.file = file;
     this.isApplied = isApplied;

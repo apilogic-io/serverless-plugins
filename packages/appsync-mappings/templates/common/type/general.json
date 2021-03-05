@@ -1,0 +1,49 @@
+{
+  "fields": [
+    {
+      "field_name" : "type",
+      "props" : {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "N",
+          "value": "__type__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "name",
+      "props" : {
+        "appsync": {
+          "type": "String"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__name__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "owner",
+      "props" : {
+        "appsync": {
+          "type": "String"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__OWNER_ID__"
+        },
+        "es": {
+
+        }
+      }
+    }
+  ]
+}

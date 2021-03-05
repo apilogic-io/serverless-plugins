@@ -1,0 +1,64 @@
+{
+  "fields": [
+    {
+      "field_name" : "shortName",
+      "props" : {
+        "appsync": {
+          "type": "String"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__shortName__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "alpha3",
+      "props" : {
+        "appsync": {
+          "type": "String"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__alpha3__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "alpha2",
+      "props" : {
+        "appsync": {
+          "type": "String"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__alpha2__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "numeric",
+      "props" : {
+        "appsync": {
+          "type": "Int"
+        },
+        "dynamo": {
+          "type": "N",
+          "value": "__numeric__"
+        },
+        "es": {
+
+        }
+      }
+    }
+  ]
+}

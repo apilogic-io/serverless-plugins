@@ -15,10 +15,11 @@ export class DynamoClient implements ApiClient {
         this.client = new DynamoDB({ ...config.config, ...options });
     }
 
-    public getClient() {
+    public getClient():DynamoDB {
         return this.client;
     }
 
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     public async load(payload): Promise<unknown | null> {
         try {
             switch (payload.operation) {
@@ -36,10 +37,6 @@ export class DynamoClient implements ApiClient {
                     return await this.scan(payload);
                 case 'TransactWriteItems':
                     return await this.transactWriteItem(payload);
-                case 'BatchGetItem':
-                case 'BatchPutItem':
-                case 'BatchDeleteItem':
-                    throw new Error(`Operation  ${payload.operation} not implemented`);
                 default:
                     throw new Error(`Unknown operation name: ${payload.operation}`);
             }

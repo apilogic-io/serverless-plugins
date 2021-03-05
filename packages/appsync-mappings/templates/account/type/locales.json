@@ -1,0 +1,34 @@
+{
+  "fields": [
+    {
+      "field_name" : "code",
+      "props" : {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.location.__placeholder__.code"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "field_name" : "default",
+      "props" : {
+        "appsync": {
+          "type": "Boolean"
+        },
+        "dynamo": {
+          "type": "B",
+          "value": "$context.arguments.location.shortDescription.default"
+        },
+        "es": {
+
+        }
+      }
+    }
+  ]
+}
