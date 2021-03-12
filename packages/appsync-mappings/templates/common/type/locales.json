@@ -17,22 +17,6 @@
       }
     },
     {
-      "name" : "test",
-      "props" : {
-        "appsync": {
-          "type": "Boolean"
-        },
-        "dynamo": {
-          "type": "S",
-          "list": true,
-          "value": "__test__"
-        },
-        "es": {
-
-        }
-      }
-    },
-    {
       "name" : "default",
       "props" : {
         "appsync": {

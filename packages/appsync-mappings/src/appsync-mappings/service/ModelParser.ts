@@ -20,22 +20,85 @@ export class ModelParser {
     infras.forEach(infra => {
       const entityModel = this.readModelInput(index_path, "type", infra.entity);
       const keyDefinition = this.getKeyDefinitions(entityModel.fields);
+      const forEachArray = new Array<ForEachArrayData>();
+      const aggregatedSearch = Array<string>();
       const attributeDefinition =
           this.constructAttributeDefinitions(index_path,
               entityModel.fields,
               new Map<string, string>(),
               0,
-              false);
-      this.putItem(keyDefinition, attributeDefinition);
+              false,
+              forEachArray,
+              aggregatedSearch);
+      this.forEachArrayArgsToString(forEachArray, aggregatedSearch);
+      this.putItem(keyDefinition, attributeDefinition, aggregatedSearch);
     })
   }
 
-  private putItem(key: {[k: string]: any}, attributes: {[k: string]: any}) : {[k: string]: any} {
+  // @ts-ignore
+  private forEachArrayArgsToString(table: Array<ForEachArrayData>, aggregatedSearch: Array<string>) :string {
+    // let root = {index:0, parentIndex: null, children: []};
+    // let node_list = { 0 : root};
+    // for (var i = 0; i < forEachArray.length; i++) {
+    //   // @ts-ignore
+    //   node_list[forEachArray[i].index] = forEachArray[i];
+    //   // @ts-ignore
+    //   if(node_list[forEachArray[i].parentIndex] !== undefined) {
+    //     // @ts-ignore
+    //     node_list[forEachArray[i].parentIndex].children.push(node_list[forEachArray[i].index]);
+    //   }
+    // }
+
+    var root = {id:0, parent_id: null, children: []};
+    var node_list = { 0 : root};
+
+    table.sort((a, b) => (a.parent_id > b.parent_id) ? 1 : -1)
+
+    for (var i = 0; i < table.length; i++) {
+      //@ts-ignore
+      node_list[table[i].id] = table[i];
+    }
+
+    for (var i = 0; i < table.length; i++) {
+      //@ts-ignore
+      if(node_list[table[i].parent_id] === undefined) {
+        //@ts-ignore
+        node_list[0].children.push(node_list[table[i].id]);
+      }
+      else {
+        //@ts-ignore
+        node_list[table[i].parent_id].children.push(node_list[table[i].id]);
+      }
+    }
+
+    this.getInnerForEachStatements(node_list[0].children, aggregatedSearch);
+    console.log(root);
+    // console.log(node_list);
+  }
+
+  private getInnerForEachStatements(statements: Array<ForEachArrayData>, aggregatedForEach: Array<string>): void{
+    statements.forEach(el => {
+      if(el.statement) {
+        aggregatedForEach.push(el.statement)
+        if(el.children.length === 0) {
+          aggregatedForEach.push("\n#end")
+        }
+        else {
+          this.getInnerForEachStatements(el.children, aggregatedForEach);
+          aggregatedForEach.push("\n#end")
+        }
+      }
+    })
+  }
+
+
+  private putItem(key: {[k: string]: any}, attributes: {[k: string]: any}, forEachArray: Array<string>) : {[k: string]: any} {
     const puItem: {[k: string]: any} = {};
     puItem["key"] = key;
     puItem["attributeValues"] = attributes;
     const putMap = new Map<string, any>(Object.entries(puItem));
     const mapperContext: JsonStringifierContext = {};
+    console.log(forEachArray.join("\n"));
     console.log(new JsonStringifier().stringify(putMap, mapperContext));
     return puItem;
   }
@@ -44,10 +107,11 @@ export class ModelParser {
                                         fields: EntityField[],
                                         args: Map<string, string>,
                                         parentRec: number,
-                                        parentIsList: boolean): {[k: string]: any} {
+                                        parentIsList: boolean,
+                                        forEachArray: Array<ForEachArrayData>,
+                                        aggregatedSearch: Array<string>): {[k: string]: any} {
     const value: {[k: string]: any} = {};
-    let rec = 0;
-    const forEachBuilder = "";
+    let rec = Math.floor(Math.random() * 500);
     fields.forEach(field => {
       const dynamoField = field.props.dynamo;
        value[field.fieldName] = this.constructDynamoAttributeValues(parentRec,
@@ -57,7 +121,8 @@ export class ModelParser {
            dynamoField,
            args,
            rec,
-           forEachBuilder);
+           forEachArray,
+           aggregatedSearch);
        rec = rec + 1;
     })
     return value;
@@ -70,11 +135,12 @@ export class ModelParser {
                                          attribute: DynamoFieldProp,
                                          args: Map<string, string>,
                                          rec: number,
-                                         foreEachBuilder: string
+                                         foreEachArray: Array<ForEachArrayData>,
+                                         aggregatedSearch: Array<string>
                                          ): {[k: string]: any} {
     if(attribute.ref === undefined) {
       attribute.value = this.replaceValuePlaceHolders(attribute.value, args);
-      return this.getDynamoSimplePropertyDefinition(key, parentRec, parentIsList, rec, attribute);
+      return this.getDynamoSimplePropertyDefinition(key, parentRec, parentIsList, rec, attribute, foreEachArray, aggregatedSearch);
     }
     else {
       const entityModel = this.readModelInput(index_path, attribute.ref.path, key);
@@ -83,7 +149,7 @@ export class ModelParser {
           attribute.ref.args.set(key, this.replaceValuePlaceHolders(value, args));
         })
       return this.getDynamoComplexPropertyDefinition(parentRec, key, attribute,
-          this.constructAttributeDefinitions(index_path, entityModel.fields, attribute.ref.args, rec, attribute.list), rec);
+          this.constructAttributeDefinitions(index_path, entityModel.fields, attribute.ref.args, rec, attribute.list, foreEachArray, aggregatedSearch), rec, foreEachArray, aggregatedSearch);
     }
   }
 
@@ -119,7 +185,8 @@ export class ModelParser {
                                             parentIsList: boolean,
                                             rec: number,
                                             attribute: DynamoFieldProp,
-                                            forEachBuilder: string
+                                            forEachArray: Array<ForEachArrayData>,
+                                            aggregatedSearch: Array<string>
   ) : {[k: string]: any} {
     const obj: { [k: string]: any } = {};
     if(attribute.list) {
@@ -136,10 +203,14 @@ export class ModelParser {
         if(parentRec !== rec && parentIsList) {
           val = "$entry_" + parentRec + "." + key;
         }
-        const forEachL = "#foreach($entry_" + rec + " in " + val + ")\n" +
-           JSON.stringify(objectList) + "\n" +
-          " #end"
-        obj["L"] = forEachL
+        const forEachArrayData = {parent_id: parentRec,
+          id: rec, statement: "#foreach($entry_" + rec + " in " + val + ")" + "\n" +
+              "$arr_" + rec + ".add(" + JSON.stringify(objectList) + ")\n",
+          children: []
+        };
+        forEachArray.push(forEachArrayData)
+        aggregatedSearch.push("#set($arr_" + rec + " = [])")
+        obj["L"] = "$arr_" + rec;
     }
     else {
       obj[attribute.type as keyof string] = attribute.value;
@@ -147,7 +218,13 @@ export class ModelParser {
     return obj;
   }
 
-  private getDynamoComplexPropertyDefinition(parentRec: number, keyVal: string, attribute: DynamoFieldProp, value: {[k: string]: any}, rec: number) : {[k: string]: any} {
+  private getDynamoComplexPropertyDefinition(parentRec: number,
+                                             keyVal: string,
+                                             attribute: DynamoFieldProp,
+                                             value: {[k: string]: any},
+                                             rec: number,
+                                             forEachArray: Array<ForEachArrayData>,
+                                             aggregatedSearch: Array<string>) : {[k: string]: any} {
     const obj = new Map<string, any>();
     const objL = new Map<string, any>();
     obj.set(attribute.type, value);
@@ -189,10 +266,15 @@ export class ModelParser {
         obj.set(attribute.type, attr);
       }
       const mapperContext: JsonStringifierContext = {};
-      const forEachL = "#foreach($entry_" + rec + " in $context.arguments." + keyVal + ")\n" +
-          new JsonStringifier().stringify(obj, mapperContext) +
-          " #end"
-      objL.set("L", forEachL);
+      let forEachString = "#foreach($entry_" + rec + " in $context.arguments." + keyVal + ")" + "\n" +
+          "$arr_" + rec + ".add(" + new JsonStringifier().stringify(obj, mapperContext) + ")\n";
+      if(parentRec === rec) {
+        forEachString = forEachString + "\n" + "#end";
+      }
+      const forEachArrayData = {parent_id: parentRec, id: rec, statement: forEachString, children: []};
+      forEachArray.push(forEachArrayData);
+      aggregatedSearch.push("#set($arr_" + rec + " = [])")
+      objL.set("L", "$arr_" + rec);
       return objL;
     }
     return obj;
@@ -208,5 +290,14 @@ export class EntityModel {
 
   @JsonProperty() @JsonClassType({type: () => [Array, [EntityField]]})
   fields: EntityField[];
+
+}
+
+interface ForEachArrayData {
+
+  parent_id: number;
+  id: number;
+  statement: string;
+  children: any[];
 
 }
