@@ -1,0 +1,14 @@
+- entity: hotel
+  operations:
+    - type: TransactWriteItems
+      references:
+        - location
+        - hotel
+    - type: DeleteItem
+    - type: GetItem
+      references:
+        - entity: location
+        - entity: location
+          path: airports[].location
+        - entity: account
+          path: owner

@@ -1,5 +1,5 @@
 {
-  "name": "Location",
+  "name": "Locations",
   "fields": [
     {
       "name": "location_id",
@@ -10,7 +10,22 @@
         "dynamo": {
           "type": "S",
           "isKey": true,
-          "value": "__AUTO__"
+          "value": "$context.stash.location_id"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "owner_id",
+      "props": {
+        "appsync": {
+          "type": "ID!"
+        },
+        "dynamo": {
+          "type": "S",
+          "isKey": true,
+          "value": "$context.stash.owner_id"
         },
         "es": {
         }
@@ -25,7 +40,7 @@
         "dynamo": {
           "type": "M",
           "ref": {
-            "path": "../common/general",
+            "path": "../common/type",
             "args": {
               "type": "$context.arguments.location.general.type",
               "name": "$context.arguments.location.general.name"
@@ -45,7 +60,7 @@
         "dynamo": {
           "type": "M",
           "ref": {
-            "path": "../common/iso",
+            "path": "../common/type",
             "args": {
               "shortName": "$context.arguments.location.iso.shortName",
               "alpha3": "$context.arguments.location.iso.alpha3",
@@ -67,7 +82,7 @@
         "dynamo": {
           "type": "M",
           "ref": {
-            "path": "../common/geo",
+            "path": "../common/type",
             "args": {
               "type": "$context.arguments.location.type",
               "long": "$context.arguments.location.lat",
@@ -88,7 +103,7 @@
         "dynamo": {
           "type": "M",
           "ref": {
-            "path": "../common/locales",
+            "path": "../common/type/locales.json",
             "args": {
               "code": "$context.arguments.location.shortDescription.code",
               "default": "$context.arguments.location.shortDescription.default"
@@ -108,7 +123,7 @@
         "dynamo": {
           "type": "M",
           "ref": {
-            "path": "../common/locales",
+            "path": "../common/type/locales.json",
             "args": {
               "code": "$context.arguments.location.longDescription.code",
               "default": "$context.arguments.location.longDescription.default"
@@ -128,7 +143,7 @@
         "dynamo": {
           "type": "S",
           "list": true,
-          "value": "$context.arguments.location.images"
+          "value": "[\"$context.arguments.location.images\"]"
         },
         "es": {
         }

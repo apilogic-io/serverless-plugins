@@ -1,0 +1,603 @@
+{
+  "name": "Hotels",
+  "fields": [
+    {
+      "name": "hotel_id",
+      "props": {
+        "appsync": {
+          "type": "ID!"
+        },
+        "dynamo": {
+          "type": "S",
+          "isKey": true,
+          "value": "$context.stash.hotel_id"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "owner_id",
+      "props": {
+        "appsync": {
+          "type": "ID!"
+        },
+        "dynamo": {
+          "type": "S",
+          "isKey": true,
+          "value": "$context.stash.owner_id"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "type",
+      "props": {
+        "appsync": {
+          "type": "HotelType"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.type"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "chain",
+      "props": {
+        "appsync": {
+          "type": "Chain"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.chain"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "supplier_id",
+      "props": {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.supplier_id"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "status",
+      "props": {
+        "appsync": {
+          "type": "HotelStatus"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.status"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "ratings",
+      "props": {
+        "appsync": {
+          "type": "Rating"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type",
+            "args": {
+              "official": "$context.arguments.official_rating",
+              "ours": "$context.arguments.our_rating"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "category",
+      "props": {
+        "appsync": {
+          "type": "HotelCategory"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.category"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "preferred",
+      "props": {
+        "appsync": {
+          "type": "Boolean"
+        },
+        "dynamo": {
+          "type": "B",
+          "value": "$context.arguments.preferred"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "propertyType",
+      "props": {
+        "appsync": {
+          "type": "[HotelPropertyType]"
+        },
+        "dynamo": {
+          "type": "S",
+          "list": true,
+          "value": "$context.arguments.propertyType"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "location_id",
+      "props": {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.stash.location_id"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "city_id",
+      "props": {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.city_id"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "country_id",
+      "props": {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.country_id"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "zone_id",
+      "props": {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.zone_id"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "attraction_id",
+      "props": {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.attraction_id"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "airport_id",
+      "props": {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.airport_id"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "distanceFrom",
+      "props": {
+        "appsync": {
+          "type": "DistanceFrom"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type",
+            "args": {
+              "cityCenter.location": "$context.arguments.distanceFrom.cityCenter.location",
+              "cityCenter.distance": "$context.arguments.distanceFrom.cityCenter.distance",
+              "cityCenter.measure": "$context.arguments.distanceFrom.cityCenter.measure",
+              "beach.location": "$context.arguments.distanceFrom.beach.location",
+              "beach.distance": "$context.arguments.distanceFrom.beach.distance",
+              "beach.measure": "$context.arguments.distanceFrom.beach.measure",
+              "airport.location": "$context.arguments.distanceFrom.airports.location",
+              "airport.distance": "$context.arguments.distanceFrom.airports.distance",
+              "airport.measure": "$context.arguments.distanceFrom.airports.measure",
+              "attraction.location": "$context.arguments.distanceFrom.attractions.location",
+              "attraction.distance": "$context.arguments.distanceFrom.attractions.distance",
+              "attraction.measure": "$context.arguments.distanceFrom.attractions.measure"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "shortDescription",
+      "props": {
+        "appsync": {
+          "type": "Locales"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type/locales.json",
+            "args": {
+              "code": "$context.arguments.shortDescription.code",
+              "default": "$context.arguments.shortDescription.default"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "longDescription",
+      "props": {
+        "appsync": {
+          "type": "Locales"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type/locales.json",
+            "args": {
+              "code": "$context.arguments.longDescription.code",
+              "default": "$context.arguments.longDescription.default"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "messages",
+      "props": {
+        "appsync": {
+          "type": "[Message]"
+        },
+        "dynamo": {
+          "type": "M",
+          "list": true,
+          "ref": {
+            "path": "./common/type/message.json",
+            "args": {
+              "title": "$context.arguments.messages.title",
+              "code": "$context.arguments.messages.description.default",
+              "default": "$context.arguments.messages.description.default",
+              "startDate": "$context.arguments.messages.startDate",
+              "endDate": "$context.arguments.messages.endDate"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "internalNotes",
+      "props": {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.internalNotes"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "address",
+      "props": {
+        "appsync": {
+          "type": "String!"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.address"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "phone",
+      "props": {
+        "appsync": {
+          "type": "HotelContact"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type/hotelContact.json",
+            "args": {
+              "public": "$context.arguments.phone.public",
+              "emergencyPhone": "$context.arguments.phone.emergencyPhone",
+              "name": "$context.arguments.phone.other.name",
+              "phone": "$context.arguments.phone.other.phone",
+              "beach.distance": "$context.arguments.distanceFrom.beach.distance",
+              "beach.measure": "$context.arguments.distanceFrom.beach.measure",
+              "airports.location_id": "$context.arguments.distanceFrom.airports.location_id",
+              "airports.distance": "$context.arguments.distanceFrom.airports.distance",
+              "airports.measure": "$context.arguments.distanceFrom.airports.measure",
+              "attractions.location_id": "$context.arguments.distanceFrom.airports.location_id",
+              "attractions.distance": "$context.arguments.distanceFrom.airports.distance",
+              "attractions.measure": "$context.arguments.distanceFrom.airports.measure"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "website",
+      "props": {
+        "appsync": {
+          "type": "AWSURL"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.website"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "tripadvisorCode",
+      "props": {
+        "appsync": {
+          "type": "String"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.tripadvisorCode"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "checkinTime",
+      "props": {
+        "appsync": {
+          "type": "AWSTime"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.checkinTime"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "checkoutTime",
+      "props": {
+        "appsync": {
+          "type": "AWSTime"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.checkoutTime"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "adultsOnly",
+      "props": {
+        "appsync": {
+          "type": "Boolean"
+        },
+        "dynamo": {
+          "type": "B",
+          "value": "$context.arguments.adultsOnly"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "ageConfig",
+      "props": {
+        "appsync": {
+          "type": "AgeConfig"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type",
+            "args": {
+              "infant": "$context.arguments.ageConfig.infant",
+              "child": "$context.arguments.ageConfig.child",
+              "adult": "$context.arguments.ageConfig.adult"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "images",
+      "props": {
+        "appsync": {
+          "type": "[String]"
+        },
+        "dynamo": {
+          "type": "S",
+          "list": true,
+          "value": "$context.arguments.images"
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "seo",
+      "props": {
+        "appsync": {
+          "type": "Seo"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type",
+            "args": {
+              "title": "$context.arguments.seo.title",
+              "metaDescription": "$context.arguments.seo.metaDescription"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "files",
+      "props": {
+        "appsync": {
+          "type": "HotelFile"
+        },
+        "dynamo": {
+          "type": "M",
+          "list": true,
+          "ref": {
+            "path": "./common/type/file.json",
+            "args": {
+              "id": "$context.arguments.files.id",
+              "name": "$context.arguments.file.name"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "customFields",
+      "props": {
+        "appsync": {
+          "type": "CustomField"
+        },
+        "dynamo": {
+          "type": "M",
+          "list": true,
+          "ref": {
+            "path": "./common/type/customField.json",
+            "args": {
+              "label": "$context.arguments.customFields.label",
+              "value": "$context.arguments.customFields.value"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "restrictions",
+      "props": {
+        "appsync": {
+          "type": "[Restriction]"
+        },
+        "dynamo": {
+          "type": "M",
+          "list": true,
+          "ref": {
+            "path": "./common/type/restriction.json",
+            "args": {
+              "name": "$context.arguments.restrictions.name",
+              "type": "$context.arguments.restrictions.type",
+              "startDate": "$context.arguments.restrictions.startDate",
+              "endDate": "$context.arguments.restrictions.endDate",
+              "rooms": "$context.arguments.restrictions.rooms",
+              "countries": "$context.arguments.restrictions.countries",
+              "validOn": "$context.arguments.restrictions.validOn",
+              "mustInclude": "$context.arguments.restrictions.mustInclude",
+              "minStay.apply": "$context.arguments.restrictions.minStay.apply",
+              "minStay.nights": "$context.arguments.restrictions.minStay.nights",
+              "maxStay.apply": "$context.arguments.restrictions.maxStay.apply",
+              "maxStay.nights": "$context.arguments.restrictions.maxStay.nights"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name": "facilities",
+      "props": {
+        "appsync": {
+          "type": "[String]"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "$context.arguments.facilities"
+        },
+        "es": {
+        }
+      }
+    }
+  ]
+}

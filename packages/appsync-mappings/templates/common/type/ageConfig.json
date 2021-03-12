@@ -1,15 +1,15 @@
 {
-  "name": "locales",
+  "name": "contact",
   "fields": [
     {
-      "name" : "code",
+      "name" : "infant",
       "props" : {
         "appsync": {
-          "type": "String!"
+          "type": "Int"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__code__"
+          "type": "N",
+          "value": "__infant__"
         },
         "es": {
 
@@ -17,15 +17,14 @@
       }
     },
     {
-      "name" : "test",
+      "name" : "child",
       "props" : {
         "appsync": {
-          "type": "Boolean"
+          "type": "Int"
         },
         "dynamo": {
-          "type": "S",
-          "list": true,
-          "value": "__test__"
+          "type": "N",
+          "value": "__child__"
         },
         "es": {
 
@@ -33,14 +32,14 @@
       }
     },
     {
-      "name" : "default",
+      "name" : "adult",
       "props" : {
         "appsync": {
-          "type": "Boolean"
+          "type": "Int"
         },
         "dynamo": {
-          "type": "B",
-          "value": "__default__"
+          "type": "N",
+          "value": "__adult__"
         },
         "es": {
 

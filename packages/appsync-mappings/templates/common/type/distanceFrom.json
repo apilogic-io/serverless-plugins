@@ -1,0 +1,95 @@
+{
+  "name" : "distanceFrom",
+  "fields": [
+    {
+      "name" : "cityCenter",
+      "props" : {
+        "appsync": {
+          "type": "Distance"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type/distance.json",
+            "args": {
+              "location": "__cityCenter.location__",
+              "distance": "__cityCenter.distance__",
+              "measure": "__cityCenter.measure__"
+            }
+          }
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "beach",
+      "props" : {
+        "appsync": {
+          "type": "Distance"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path":  "./common/type/distance.json",
+            "args": {
+              "location": "__beach.location__",
+              "distance": "__beach.distance__",
+              "measure": "__beach.measure__"
+            }
+          }
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "airports",
+      "props" : {
+        "appsync": {
+          "type": "[Distance]"
+        },
+        "dynamo": {
+          "type": "M",
+          "list": true,
+          "ref": {
+            "path":  "./common/type/distance.json",
+            "args": {
+              "location": "__airport.location__",
+              "distance": "__airport.distance__",
+              "measure": "__airport.measure__"
+            }
+          }
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "attractions",
+      "props" : {
+        "appsync": {
+          "type": "[Distance]"
+        },
+        "dynamo": {
+          "type": "M",
+          "list": true,
+          "ref": {
+            "path":  "./common/type/distance.json",
+            "args": {
+              "location": "__attraction.location__",
+              "distance": "__attraction.distance__",
+              "measure": "__attraction.measure__"
+            }
+          }
+        },
+        "es": {
+
+        }
+      }
+    }
+  ]
+}

@@ -1,15 +1,15 @@
 {
-  "name": "locales",
+  "name" : "distance",
   "fields": [
     {
-      "name" : "code",
+      "name" : "location",
       "props" : {
         "appsync": {
           "type": "String!"
         },
         "dynamo": {
           "type": "S",
-          "value": "__code__"
+          "value": "__location__"
         },
         "es": {
 
@@ -17,15 +17,14 @@
       }
     },
     {
-      "name" : "test",
+      "name" : "distance",
       "props" : {
         "appsync": {
-          "type": "Boolean"
+          "type": "Float!"
         },
         "dynamo": {
-          "type": "S",
-          "list": true,
-          "value": "__test__"
+          "type": "N",
+          "value": "__distance__"
         },
         "es": {
 
@@ -33,14 +32,14 @@
       }
     },
     {
-      "name" : "default",
+      "name" : "measure",
       "props" : {
         "appsync": {
-          "type": "Boolean"
+          "type": "DistanceMeasureEnum = KM"
         },
         "dynamo": {
-          "type": "B",
-          "value": "__default__"
+          "type": "N",
+          "value": "__measure__"
         },
         "es": {
 

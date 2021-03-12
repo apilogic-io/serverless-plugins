@@ -1,13 +1,14 @@
 {
+  "name": "location",
   "fields": [
     {
-      "field_name" : "type",
+      "name" : "type",
       "props" : {
         "appsync": {
           "type": "String!"
         },
         "dynamo": {
-          "type": "N",
+          "type": "S",
           "value": "__type__"
         },
         "es": {
@@ -16,7 +17,7 @@
       }
     },
     {
-      "field_name" : "name",
+      "name" : "name",
       "props" : {
         "appsync": {
           "type": "String"
@@ -24,21 +25,6 @@
         "dynamo": {
           "type": "S",
           "value": "__name__"
-        },
-        "es": {
-
-        }
-      }
-    },
-    {
-      "field_name" : "owner",
-      "props" : {
-        "appsync": {
-          "type": "String"
-        },
-        "dynamo": {
-          "type": "S",
-          "value": "__OWNER_ID__"
         },
         "es": {
 

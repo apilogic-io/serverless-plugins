@@ -1,0 +1,170 @@
+{
+  "name": "restriction",
+  "fields": [
+    {
+      "name" : "name",
+      "props" : {
+        "appsync": {
+          "type": "String"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__name__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "type",
+      "props" : {
+        "appsync": {
+          "type": "String"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__type__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "startDate",
+      "props" : {
+        "appsync": {
+          "type": "AWSDate"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__startDate__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "endDate",
+      "props" : {
+        "appsync": {
+          "type": "AWSDate"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__endDate__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "rooms",
+      "props" : {
+        "appsync": {
+          "type": "[String]"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__rooms__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "validOn",
+      "props" : {
+        "appsync": {
+          "type": "[WeekDays]"
+        },
+        "dynamo": {
+          "type": "S",
+          "list": true,
+          "value": "__validOn__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "mustInclude",
+      "props" : {
+        "appsync": {
+          "type": "[WeekDays]"
+        },
+        "dynamo": {
+          "type": "S",
+          "list": true,
+          "value": "__mustInclude__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "countries",
+      "props" : {
+        "appsync": {
+          "type": "[String]"
+        },
+        "dynamo": {
+          "type": "S",
+          "list": true,
+          "value": "__countries__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "minStay",
+      "props" : {
+        "appsync": {
+          "type": "Stay"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type/stay.json",
+            "args": {
+              "apply": "__minStay.apply__",
+              "nights": "__minStay.nights__"
+            }
+          }
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "maxStay",
+      "props" : {
+        "appsync": {
+          "type": "Stay"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type/stay.json",
+            "args": {
+              "apply": "__maxStay.apply__",
+              "nights": "__maxStay.nights__"
+            }
+          }
+        },
+        "es": {
+
+        }
+      }
+    }
+  ]
+}

@@ -1,15 +1,15 @@
 {
-  "name" : "geo",
+  "name" : "seo",
   "fields": [
     {
-      "name" : "locationType",
+      "name" : "title",
       "props" : {
         "appsync": {
-          "type": "LocationType = POINT"
+          "type": "String"
         },
         "dynamo": {
           "type": "S",
-          "value": "__type__"
+          "value": "__title__"
         },
         "es": {
 
@@ -17,15 +17,14 @@
       }
     },
     {
-      "name" : "coordinates",
+      "name" : "metaDescription",
       "props" : {
         "appsync": {
-          "type": "[Float!]!"
+          "type": "String"
         },
         "dynamo": {
-          "type": "N",
-          "list": true,
-          "value": "[\"__long__\", \"__lat__\"]"
+          "type": "S",
+          "value": "__metaDescription__"
         },
         "es": {
 

@@ -5,7 +5,7 @@ export class EntityField {
 
   @JsonProperty() @JsonClassType({type: () => [String]})
   @JsonAlias({values: ['name']})
-  fieldName: String;
+  fieldName: string;
 
   @JsonProperty() @JsonClassType({type: () => [Prop]})
   props: Prop;

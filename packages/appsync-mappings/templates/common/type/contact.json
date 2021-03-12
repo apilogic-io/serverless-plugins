@@ -1,15 +1,15 @@
 {
-  "name" : "geo",
+  "name": "contact",
   "fields": [
     {
-      "name" : "locationType",
+      "name" : "name",
       "props" : {
         "appsync": {
-          "type": "LocationType = POINT"
+          "type": "String"
         },
         "dynamo": {
           "type": "S",
-          "value": "__type__"
+          "value": "__name__"
         },
         "es": {
 
@@ -17,15 +17,14 @@
       }
     },
     {
-      "name" : "coordinates",
+      "name" : "phone",
       "props" : {
         "appsync": {
-          "type": "[Float!]!"
+          "type": "AWSPhone"
         },
         "dynamo": {
-          "type": "N",
-          "list": true,
-          "value": "[\"__long__\", \"__lat__\"]"
+          "type": "S",
+          "value": "__phone__"
         },
         "es": {
 

@@ -16,13 +16,16 @@
   "dependencies": {
     "@angular-devkit/core": "^11.2.0",
     "@angular-devkit/schematics": "^11.2.0",
-    "jackson-js": "^1.1.0",
-    "typescript": "~4.1.2"
+    "jackson-js": "^1.1.0"
   },
   "devDependencies": {
     "@angular-devkit/schematics-cli": "^0.1102.2",
     "@types/jasmine": "~3.5.0",
     "@types/node": "^12.11.1",
-    "jasmine": "^3.5.0"
+    "jasmine": "^3.5.0",
+    "nodemon": "^2.0.7",
+    "ts-loader": "^8.0.17",
+    "typescript": "^4.1.5",
+    "yaml": "^1.10.0"
   }
 }

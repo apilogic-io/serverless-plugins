@@ -1,0 +1,57 @@
+{
+  "name" : "hotelContact",
+  "fields": [
+    {
+      "name" : "public",
+      "props" : {
+        "appsync": {
+          "type": "AWSPhone"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__public__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "emergencyPhone",
+      "props" : {
+        "appsync": {
+          "type": "AWSPhone"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__emergencyPhone__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "other",
+      "props" : {
+        "appsync": {
+          "type": "[Contact]"
+        },
+        "dynamo": {
+          "type": "M",
+          "list": true,
+          "ref": {
+            "path": "./common/type/contact.json",
+            "args": {
+              "name": "__name__",
+              "phone": "__phone__"
+            }
+          }
+        },
+        "es": {
+
+        }
+      }
+    }
+  ]
+}

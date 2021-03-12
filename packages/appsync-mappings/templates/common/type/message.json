@@ -1,0 +1,71 @@
+{
+  "name": "messages",
+  "fields": [
+    {
+      "name" : "title",
+      "props" : {
+        "appsync": {
+          "type": "String"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__title__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name": "description",
+      "props": {
+        "appsync": {
+          "type": "Locales"
+        },
+        "dynamo": {
+          "type": "M",
+          "ref": {
+            "path": "./common/type/locales.json",
+            "args": {
+              "code": "__code__",
+              "description": "__description__",
+              "default": "__default__"
+            }
+          }
+        },
+        "es": {
+        }
+      }
+    },
+    {
+      "name" : "startDate",
+      "props" : {
+        "appsync": {
+          "type": "AWSDate"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__startDate__"
+        },
+        "es": {
+
+        }
+      }
+    },
+    {
+      "name" : "endDate",
+      "props" : {
+        "appsync": {
+          "type": "AWSDate"
+        },
+        "dynamo": {
+          "type": "S",
+          "value": "__endDate__"
+        },
+        "es": {
+
+        }
+      }
+    }
+  ]
+}

@@ -1,15 +1,15 @@
 {
-  "name" : "geo",
+  "name" : "stay",
   "fields": [
     {
-      "name" : "locationType",
+      "name" : "apply",
       "props" : {
         "appsync": {
-          "type": "LocationType = POINT"
+          "type": "Boolean"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__type__"
+          "type": "B",
+          "value": "__apply__"
         },
         "es": {
 
@@ -17,15 +17,14 @@
       }
     },
     {
-      "name" : "coordinates",
+      "name" : "nights",
       "props" : {
         "appsync": {
-          "type": "[Float!]!"
+          "type": "Int"
         },
         "dynamo": {
           "type": "N",
-          "list": true,
-          "value": "[\"__long__\", \"__lat__\"]"
+          "value": "__nights__"
         },
         "es": {
 

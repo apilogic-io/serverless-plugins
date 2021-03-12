@@ -4,17 +4,17 @@ import {DynamoRef} from "./DynamoRef";
 export class DynamoFieldProp {
 
   @JsonProperty() @JsonClassType({type: () => [String]})
-  type: String;
+  type: string;
 
   @JsonProperty() @JsonClassType({type: () => [Boolean]})
   @JsonAlias({values: ['is_key']})
   isKey: Boolean;
 
   @JsonProperty() @JsonClassType({type: () => [Boolean]})
-  list: Boolean;
+  list: boolean;
 
   @JsonProperty() @JsonClassType({type: () => [String]})
-  value: String;
+  value: string;
 
   @JsonProperty() @JsonClassType({type: () => [DynamoRef]})
   ref: DynamoRef;
