@@ -30,25 +30,85 @@ export class ModelParser {
               false,
               forEachArray,
               aggregatedSearch);
+      this.generatePreVtl(attributeDefinition, "", 0);
+      const addToMapSet = new Map<string, Array<string>>();
+      this.generateDeclarationSet(attributeDefinition, addToMapSet);
+      // this.generateAddToMapSet(preVtl, addToMapSet);
       this.forEachArrayArgsToString(forEachArray, aggregatedSearch);
+      // const vtlDeclarations = Array.from(declarationSet).join('\n')
+      const vtlString = aggregatedSearch.join("\n") + "\n" + this.generateVtlString(addToMapSet);
+      // console.log(vtlDeclarations);
+      console.log(vtlString);
       this.putItem(keyDefinition, attributeDefinition, aggregatedSearch);
+
     })
+  }
+
+  private generateVtlString(map: Map<string, Array<string>>) :string {
+    let vtl = "";
+    //@ts-ignore
+    map.forEach((v, k) =>{
+      vtl = vtl + "#set(" + k + " = []) \n";
+    })
+    //@ts-ignore
+    map.forEach((v, k) =>{
+      vtl = vtl + v.join("\n") + "\n";
+    })
+    return vtl;
+  }
+
+
+  private generateDeclarationSet(attributeDefinitions: Array<AttributeDefinition>, vtlAttrKey: Map<string, Array<string>>): void {
+    // const decl = new Map<string, Array<string>>();
+    attributeDefinitions.forEach(attributeDefinition => {
+      if(attributeDefinition.field_type == 'M' && attributeDefinition.field_value.get("M") !==undefined) {
+        //@ts-ignore
+        this.generateDeclarationSet(attributeDefinition.field_value.get("M"), vtlAttrKey);
+        //@ts-ignore
+        vtlAttrKey.get(attributeDefinition.id).push(attributeDefinition.statement);
+      }
+      else {
+        if (vtlAttrKey.get(attributeDefinition.id) === undefined) {
+          const array = new Array<string>();
+          array.push(attributeDefinition.statement);
+          vtlAttrKey.set(attributeDefinition.id, array);
+        } else {
+          //@ts-ignore
+          vtlAttrKey.get(attributeDefinition.id).push(attributeDefinition.statement);
+        }
+      }
+    })
+  }
+
+  private generatePreVtl(attributes: Array<AttributeDefinition>, parentField: string, deph: number): any {
+    let key = "$attr_" + deph + "_" + parentField;
+    return attributes.map(attr => {
+      if(attr.field_type !== "M" || attr.field_value.get("L") !== undefined) {
+        attr.id = key;
+        attr.statement = "#if(" + attr.selector + ")\n" +
+            "#set($idx = '\"" + attr.field_name + "\":{\""+ attr.field_type + "\":\"' + " + attr.selector + " + '\"}')\n" +
+            key + ".add($idx)\n" +
+            "#end\n";
+      }
+      else {
+        deph = deph + 1;
+        attr.id = "$attr_" + deph + "_" + attr.field_name;
+        attr.parent_id = key;
+        this.generatePreVtl(attr.field_value.get("M"), attr.field_name, deph);
+        let statement = "";
+        statement = statement + "\n" +
+            "#if(!" + attr.id + ".isEmpty())\n" +
+            "#set($idx = '" + attr.field_name + ":\n{"+ attr.field_type + ":\n{' + " + attr.id + "+ '}\n}')\n" +
+            attr.parent_id + ".add($idx)\n" +
+            "#end"
+
+        attr.statement = statement;
+      }
+    });
   }
 
   // @ts-ignore
   private forEachArrayArgsToString(table: Array<ForEachArrayData>, aggregatedSearch: Array<string>) :string {
-    // let root = {index:0, parentIndex: null, children: []};
-    // let node_list = { 0 : root};
-    // for (var i = 0; i < forEachArray.length; i++) {
-    //   // @ts-ignore
-    //   node_list[forEachArray[i].index] = forEachArray[i];
-    //   // @ts-ignore
-    //   if(node_list[forEachArray[i].parentIndex] !== undefined) {
-    //     // @ts-ignore
-    //     node_list[forEachArray[i].parentIndex].children.push(node_list[forEachArray[i].index]);
-    //   }
-    // }
-
     var root = {id:0, parent_id: null, children: []};
     var node_list = { 0 : root};
 
@@ -109,23 +169,21 @@ export class ModelParser {
                                         parentRec: number,
                                         parentIsList: boolean,
                                         forEachArray: Array<ForEachArrayData>,
-                                        aggregatedSearch: Array<string>): {[k: string]: any} {
-    const value: {[k: string]: any} = {};
+                                        aggregatedSearch: Array<string>): Array<AttributeDefinition> {
     let rec = Math.floor(Math.random() * 500);
-    fields.forEach(field => {
+    return fields.map(field => {
       const dynamoField = field.props.dynamo;
-       value[field.fieldName] = this.constructDynamoAttributeValues(parentRec,
-           parentIsList,
-           field.fieldName,
-           index_path,
-           dynamoField,
-           args,
-           rec,
-           forEachArray,
-           aggregatedSearch);
-       rec = rec + 1;
+      rec = rec + 1;
+      return this.constructDynamoAttributeValues(parentRec,
+          parentIsList,
+          field.fieldName,
+          index_path,
+          dynamoField,
+          args,
+          rec,
+          forEachArray,
+          aggregatedSearch);
     })
-    return value;
   }
 
   private constructDynamoAttributeValues(parentRec: number,
@@ -137,17 +195,17 @@ export class ModelParser {
                                          rec: number,
                                          foreEachArray: Array<ForEachArrayData>,
                                          aggregatedSearch: Array<string>
-                                         ): {[k: string]: any} {
+  ): AttributeDefinition {
     if(attribute.ref === undefined) {
       attribute.value = this.replaceValuePlaceHolders(attribute.value, args);
       return this.getDynamoSimplePropertyDefinition(key, parentRec, parentIsList, rec, attribute, foreEachArray, aggregatedSearch);
     }
     else {
       const entityModel = this.readModelInput(index_path, attribute.ref.path, key);
-        // @ts-ignore
-        attribute.ref.args.forEach((value: string, key: string) => {
-          attribute.ref.args.set(key, this.replaceValuePlaceHolders(value, args));
-        })
+      // @ts-ignore
+      attribute.ref.args.forEach((value: string, key: string) => {
+        attribute.ref.args.set(key, this.replaceValuePlaceHolders(value, args));
+      })
       return this.getDynamoComplexPropertyDefinition(parentRec, key, attribute,
           this.constructAttributeDefinitions(index_path, entityModel.fields, attribute.ref.args, rec, attribute.list, foreEachArray, aggregatedSearch), rec, foreEachArray, aggregatedSearch);
     }
@@ -187,35 +245,33 @@ export class ModelParser {
                                             attribute: DynamoFieldProp,
                                             forEachArray: Array<ForEachArrayData>,
                                             aggregatedSearch: Array<string>
-  ) : {[k: string]: any} {
-    const obj: { [k: string]: any } = {};
+  ) : AttributeDefinition {
+    const obj = new Map<string, any>();
     if(attribute.list) {
-      // const list = attribute.value;
-      // const obList = list.map((el: string) => {
-      //   const objectList: { [k: string]: any } = {};
-      //   objectList[attribute.type as keyof string] =  el;
-      //   return objectList;
-      // });
-
-        const objectList: { [k: string]: any } = {};
-        objectList[attribute.type as keyof string] =  "$entry_" + rec;
-        let val = attribute.value;
-        if(parentRec !== rec && parentIsList) {
-          val = "$entry_" + parentRec + "." + key;
-        }
-        const forEachArrayData = {parent_id: parentRec,
-          id: rec, statement: "#foreach($entry_" + rec + " in " + val + ")" + "\n" +
-              "$arr_" + rec + ".add(" + JSON.stringify(objectList) + ")\n",
-          children: []
-        };
-        forEachArray.push(forEachArrayData)
-        aggregatedSearch.push("#set($arr_" + rec + " = [])")
-        obj["L"] = "$arr_" + rec;
+      const objectList: { [k: string]: any } = {};
+      objectList[attribute.type as keyof string] =  "$entry_" + rec;
+      let val = attribute.value;
+      if(parentRec !== rec && parentIsList) {
+        val = "$entry_" + parentRec + "." + key;
+      }
+      const forEachArrayData = {parent_id: parentRec,
+        id: rec, statement: "#foreach($entry_" + rec + " in " + val + ")" + "\n" +
+            "$arr_" + rec + ".add(" + JSON.stringify(objectList) + ")\n",
+        children: []
+      };
+      forEachArray.push(forEachArrayData)
+      aggregatedSearch.push("#set($arr_" + rec + " = [])")
+      obj.set("L","$arr_" + rec);
     }
     else {
-      obj[attribute.type as keyof string] = attribute.value;
+      obj.set(attribute.type, attribute.value);
     }
-    return obj;
+    //@ts-ignore
+    return {field_name: key,
+      field_value :obj,
+      isMap: false,
+      field_type: attribute.type,
+      selector: attribute.value};
   }
 
   private getDynamoComplexPropertyDefinition(parentRec: number,
@@ -224,7 +280,7 @@ export class ModelParser {
                                              value: {[k: string]: any},
                                              rec: number,
                                              forEachArray: Array<ForEachArrayData>,
-                                             aggregatedSearch: Array<string>) : {[k: string]: any} {
+                                             aggregatedSearch: Array<string>) : AttributeDefinition {
     const obj = new Map<string, any>();
     const objL = new Map<string, any>();
     obj.set(attribute.type, value);
@@ -275,9 +331,11 @@ export class ModelParser {
       forEachArray.push(forEachArrayData);
       aggregatedSearch.push("#set($arr_" + rec + " = [])")
       objL.set("L", "$arr_" + rec);
-      return objL;
+      //@ts-ignore
+      return {field_name: keyVal, field_value :objL, isMap: true, field_type: attribute.type, selector: "$arr_" + rec};
     }
-    return obj;
+    //@ts-ignore
+    return {field_name: keyVal, field_value :obj, isMap: true, field_type: attribute.type, selector: attribute.value};
   }
 
 }
@@ -300,4 +358,15 @@ interface ForEachArrayData {
   statement: string;
   children: any[];
 
+}
+
+interface AttributeDefinition {
+  field_name: string;
+  field_value: Map<string, any>
+  field_type: string;
+  isMap: boolean
+  selector: string;
+  id: string;
+  parent_id: string;
+  statement: string;
 }
