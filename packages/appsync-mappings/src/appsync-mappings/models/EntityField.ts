@@ -7,6 +7,11 @@ export class EntityField {
   @JsonAlias({values: ['name']})
   fieldName: string;
 
+  @JsonProperty() @JsonClassType({type: () => [String]})
+  @JsonAlias({values: ['context']})
+  ctx: string;
+
+
   @JsonProperty() @JsonClassType({type: () => [Prop]})
   props: Prop;
 

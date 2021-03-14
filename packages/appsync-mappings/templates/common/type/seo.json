@@ -8,8 +8,7 @@
           "type": "String"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__title__"
+          "type": "S"
         },
         "es": {
 
@@ -23,8 +22,7 @@
           "type": "String"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__metaDescription__"
+          "type": "S"
         },
         "es": {
 

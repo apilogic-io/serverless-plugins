@@ -8,8 +8,7 @@
           "type": "String"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__name__"
+          "type": "S"
         },
         "es": {
 
@@ -23,8 +22,7 @@
           "type": "String"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__type__"
+          "type": "S"
         },
         "es": {
 
@@ -38,8 +36,7 @@
           "type": "AWSDate"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__startDate__"
+          "type": "S"
         },
         "es": {
 
@@ -53,8 +50,7 @@
           "type": "AWSDate"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__endDate__"
+          "type": "S"
         },
         "es": {
 
@@ -68,8 +64,7 @@
           "type": "[String]"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__rooms__"
+          "type": "S"
         },
         "es": {
 
@@ -84,8 +79,7 @@
         },
         "dynamo": {
           "type": "S",
-          "list": true,
-          "value": "__validOn__"
+          "list": true
         },
         "es": {
 
@@ -100,8 +94,7 @@
         },
         "dynamo": {
           "type": "S",
-          "list": true,
-          "value": "__mustInclude__"
+          "list": true
         },
         "es": {
 
@@ -116,8 +109,7 @@
         },
         "dynamo": {
           "type": "S",
-          "list": true,
-          "value": "__countries__"
+          "list": true
         },
         "es": {
 
@@ -132,13 +124,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "./common/type/stay.json",
-            "args": {
-              "apply": "__minStay.apply__",
-              "nights": "__minStay.nights__"
-            }
-          }
+          "ref": "./common/type/stay.json"
         },
         "es": {
 
@@ -153,13 +139,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "./common/type/stay.json",
-            "args": {
-              "apply": "__maxStay.apply__",
-              "nights": "__maxStay.nights__"
-            }
-          }
+          "ref": "./common/type/stay.json"
         },
         "es": {
 

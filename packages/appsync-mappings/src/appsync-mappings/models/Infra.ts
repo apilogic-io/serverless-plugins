@@ -1,19 +1,15 @@
-import {JsonClassType, JsonProperty} from "jackson-js";
 
-export class Infra {
-
-    @JsonProperty() @JsonClassType({type: () => [String]})
-    entity: string;
-
-    @JsonProperty() @JsonClassType({type: () => [Array, [Operations]]})
-    operations: Operations[]
+export interface Infra {
+    entity: string
+    operations: Operation[]
 }
 
-class Operations {
+interface Operation {
+    type: string
+    references: Reference[]
+}
 
-    @JsonProperty() @JsonClassType({type: () => [String]})
-    type: string;
-
-    @JsonProperty() @JsonClassType({type: () => [Array, [String]]})
-    items: string[];
+interface Reference {
+    entity: string,
+    path: string
 }

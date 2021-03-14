@@ -8,8 +8,7 @@
           "type": "LocationType = POINT"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__type__"
+          "type": "S"
         },
         "es": {
 
@@ -24,8 +23,7 @@
         },
         "dynamo": {
           "type": "N",
-          "list": true,
-          "value": "[\"__long__\", \"__lat__\"]"
+          "list": true
         },
         "es": {
 

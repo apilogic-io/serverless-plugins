@@ -8,8 +8,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__location__"
+          "type": "S"
         },
         "es": {
 
@@ -23,8 +22,7 @@
           "type": "Float!"
         },
         "dynamo": {
-          "type": "N",
-          "value": "__distance__"
+          "type": "N"
         },
         "es": {
 
@@ -38,8 +36,7 @@
           "type": "DistanceMeasureEnum = KM"
         },
         "dynamo": {
-          "type": "N",
-          "value": "__measure__"
+          "type": "S"
         },
         "es": {
 

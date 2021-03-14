@@ -10,7 +10,7 @@
         "dynamo": {
           "type": "S",
           "isKey": true,
-          "value": "$context.stash.hotel_id"
+          "fromStash" : true
         },
         "es": {
         }
@@ -25,7 +25,7 @@
         "dynamo": {
           "type": "S",
           "isKey": true,
-          "value": "$context.stash.owner_id"
+          "fromStash": true
         },
         "es": {
         }
@@ -38,8 +38,7 @@
           "type": "HotelType"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.type"
+          "type": "S"
         },
         "es": {
         }
@@ -52,8 +51,7 @@
           "type": "Chain"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.chain"
+          "type": "S"
         },
         "es": {
         }
@@ -66,8 +64,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.supplier_id"
+          "type": "S"
         },
         "es": {
         }
@@ -80,8 +77,7 @@
           "type": "HotelStatus"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.status"
+          "type": "S"
         },
         "es": {
         }
@@ -95,13 +91,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "./common/type",
-            "args": {
-              "official": "$context.arguments.official_rating",
-              "ours": "$context.arguments.our_rating"
-            }
-          }
+          "ref": "./common/type"
         },
         "es": {
         }
@@ -114,8 +104,7 @@
           "type": "HotelCategory"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.category"
+          "type": "S"
         },
         "es": {
         }
@@ -128,8 +117,7 @@
           "type": "Boolean"
         },
         "dynamo": {
-          "type": "B",
-          "value": "$context.arguments.preferred"
+          "type": "B"
         },
         "es": {
         }
@@ -143,8 +131,7 @@
         },
         "dynamo": {
           "type": "S",
-          "list": true,
-          "value": "$context.arguments.propertyType"
+          "list": true
         },
         "es": {
         }
@@ -157,8 +144,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.stash.location_id"
+          "type": "S"
         },
         "es": {
         }
@@ -171,8 +157,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.city_id"
+          "type": "S"
         },
         "es": {
         }
@@ -185,8 +170,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.country_id"
+          "type": "S"
         },
         "es": {
         }
@@ -199,8 +183,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.zone_id"
+          "type": "S"
         },
         "es": {
         }
@@ -213,8 +196,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.attraction_id"
+          "type": "S"
         },
         "es": {
         }
@@ -227,8 +209,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.airport_id"
+          "type": "S"
         },
         "es": {
         }
@@ -242,23 +223,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "./common/type",
-            "args": {
-              "cityCenter.location": "$context.arguments.distanceFrom.cityCenter.location",
-              "cityCenter.distance": "$context.arguments.distanceFrom.cityCenter.distance",
-              "cityCenter.measure": "$context.arguments.distanceFrom.cityCenter.measure",
-              "beach.location": "$context.arguments.distanceFrom.beach.location",
-              "beach.distance": "$context.arguments.distanceFrom.beach.distance",
-              "beach.measure": "$context.arguments.distanceFrom.beach.measure",
-              "airport.location": "$context.arguments.distanceFrom.airports.location",
-              "airport.distance": "$context.arguments.distanceFrom.airports.distance",
-              "airport.measure": "$context.arguments.distanceFrom.airports.measure",
-              "attraction.location": "$context.arguments.distanceFrom.attractions.location",
-              "attraction.distance": "$context.arguments.distanceFrom.attractions.distance",
-              "attraction.measure": "$context.arguments.distanceFrom.attractions.measure"
-            }
-          }
+          "ref": "./common/type"
         },
         "es": {
         }
@@ -272,13 +237,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "./common/type/locales.json",
-            "args": {
-              "code": "$context.arguments.shortDescription.code",
-              "default": "$context.arguments.shortDescription.default"
-            }
-          }
+          "ref": "./common/type/locales.json"
         },
         "es": {
         }
@@ -292,13 +251,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "./common/type/locales.json",
-            "args": {
-              "code": "$context.arguments.longDescription.code",
-              "default": "$context.arguments.longDescription.default"
-            }
-          }
+          "ref": "./common/type/locales.json"
         },
         "es": {
         }
@@ -313,16 +266,7 @@
         "dynamo": {
           "type": "M",
           "list": true,
-          "ref": {
-            "path": "./common/type/message.json",
-            "args": {
-              "title": "$context.arguments.messages.title",
-              "code": "$context.arguments.messages.description.default",
-              "default": "$context.arguments.messages.description.default",
-              "startDate": "$context.arguments.messages.startDate",
-              "endDate": "$context.arguments.messages.endDate"
-            }
-          }
+          "ref": "./common/type/message.json"
         },
         "es": {
         }
@@ -335,8 +279,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.internalNotes"
+          "type": "S"
         },
         "es": {
         }
@@ -349,8 +292,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.address"
+          "type": "S"
         },
         "es": {
         }
@@ -364,23 +306,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "./common/type/hotelContact.json",
-            "args": {
-              "public": "$context.arguments.phone.public",
-              "emergencyPhone": "$context.arguments.phone.emergencyPhone",
-              "name": "$context.arguments.phone.other.name",
-              "phone": "$context.arguments.phone.other.phone",
-              "beach.distance": "$context.arguments.distanceFrom.beach.distance",
-              "beach.measure": "$context.arguments.distanceFrom.beach.measure",
-              "airports.location_id": "$context.arguments.distanceFrom.airports.location_id",
-              "airports.distance": "$context.arguments.distanceFrom.airports.distance",
-              "airports.measure": "$context.arguments.distanceFrom.airports.measure",
-              "attractions.location_id": "$context.arguments.distanceFrom.airports.location_id",
-              "attractions.distance": "$context.arguments.distanceFrom.airports.distance",
-              "attractions.measure": "$context.arguments.distanceFrom.airports.measure"
-            }
-          }
+          "ref": "./common/type/hotelContact.json"
         },
         "es": {
         }
@@ -393,8 +319,7 @@
           "type": "AWSURL"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.website"
+          "type": "S"
         },
         "es": {
         }
@@ -407,8 +332,7 @@
           "type": "String"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.tripadvisorCode"
+          "type": "S"
         },
         "es": {
         }
@@ -421,8 +345,7 @@
           "type": "AWSTime"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.checkinTime"
+          "type": "S"
         },
         "es": {
         }
@@ -435,8 +358,7 @@
           "type": "AWSTime"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.checkoutTime"
+          "type": "S"
         },
         "es": {
         }
@@ -449,8 +371,7 @@
           "type": "Boolean"
         },
         "dynamo": {
-          "type": "B",
-          "value": "$context.arguments.adultsOnly"
+          "type": "B"
         },
         "es": {
         }
@@ -464,14 +385,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "./common/type",
-            "args": {
-              "infant": "$context.arguments.ageConfig.infant",
-              "child": "$context.arguments.ageConfig.child",
-              "adult": "$context.arguments.ageConfig.adult"
-            }
-          }
+          "ref": "./common/type"
         },
         "es": {
         }
@@ -485,8 +399,7 @@
         },
         "dynamo": {
           "type": "S",
-          "list": true,
-          "value": "$context.arguments.images"
+          "list": true
         },
         "es": {
         }
@@ -500,13 +413,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "./common/type",
-            "args": {
-              "title": "$context.arguments.seo.title",
-              "metaDescription": "$context.arguments.seo.metaDescription"
-            }
-          }
+          "ref": "./common/type"
         },
         "es": {
         }
@@ -521,13 +428,7 @@
         "dynamo": {
           "type": "M",
           "list": true,
-          "ref": {
-            "path": "./common/type/file.json",
-            "args": {
-              "id": "$context.arguments.files.id",
-              "name": "$context.arguments.file.name"
-            }
-          }
+          "ref": "./common/type/file.json"
         },
         "es": {
         }
@@ -542,13 +443,7 @@
         "dynamo": {
           "type": "M",
           "list": true,
-          "ref": {
-            "path": "./common/type/customField.json",
-            "args": {
-              "label": "$context.arguments.customFields.label",
-              "value": "$context.arguments.customFields.value"
-            }
-          }
+          "ref": "./common/type/customField.json"
         },
         "es": {
         }
@@ -563,23 +458,7 @@
         "dynamo": {
           "type": "M",
           "list": true,
-          "ref": {
-            "path": "./common/type/restriction.json",
-            "args": {
-              "name": "$context.arguments.restrictions.name",
-              "type": "$context.arguments.restrictions.type",
-              "startDate": "$context.arguments.restrictions.startDate",
-              "endDate": "$context.arguments.restrictions.endDate",
-              "rooms": "$context.arguments.restrictions.rooms",
-              "countries": "$context.arguments.restrictions.countries",
-              "validOn": "$context.arguments.restrictions.validOn",
-              "mustInclude": "$context.arguments.restrictions.mustInclude",
-              "minStay.apply": "$context.arguments.restrictions.minStay.apply",
-              "minStay.nights": "$context.arguments.restrictions.minStay.nights",
-              "maxStay.apply": "$context.arguments.restrictions.maxStay.apply",
-              "maxStay.nights": "$context.arguments.restrictions.maxStay.nights"
-            }
-          }
+          "ref":  "./common/type/restriction.json"
         },
         "es": {
         }
@@ -592,8 +471,7 @@
           "type": "[String]"
         },
         "dynamo": {
-          "type": "S",
-          "value": "$context.arguments.facilities"
+          "type": "S"
         },
         "es": {
         }

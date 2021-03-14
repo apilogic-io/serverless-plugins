@@ -8,8 +8,7 @@
           "type": "Int"
         },
         "dynamo": {
-          "type": "N",
-          "value": "__infant__"
+          "type": "N"
         },
         "es": {
 
@@ -23,8 +22,7 @@
           "type": "Int"
         },
         "dynamo": {
-          "type": "N",
-          "value": "__child__"
+          "type": "N"
         },
         "es": {
 
@@ -38,8 +36,7 @@
           "type": "Int"
         },
         "dynamo": {
-          "type": "N",
-          "value": "__adult__"
+          "type": "N"
         },
         "es": {
 

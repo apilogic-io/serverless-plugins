@@ -8,8 +8,7 @@
           "type": "AWSPhone"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__public__"
+          "type": "S"
         },
         "es": {
 
@@ -23,8 +22,7 @@
           "type": "AWSPhone"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__emergencyPhone__"
+          "type": "S"
         },
         "es": {
 
@@ -40,13 +38,7 @@
         "dynamo": {
           "type": "M",
           "list": true,
-          "ref": {
-            "path": "./common/type/contact.json",
-            "args": {
-              "name": "__name__",
-              "phone": "__phone__"
-            }
-          }
+          "ref":  "./common/type/contact.json"
         },
         "es": {
 

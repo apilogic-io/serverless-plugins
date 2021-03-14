@@ -8,8 +8,7 @@
           "type": "String!"
         },
         "dynamo": {
-          "type": "S",
-          "value": "__code__"
+          "type": "S"
         },
         "es": {
 
@@ -23,8 +22,7 @@
           "type": "Boolean"
         },
         "dynamo": {
-          "type": "B",
-          "value": "__default__"
+          "type": "B"
         },
         "es": {
 

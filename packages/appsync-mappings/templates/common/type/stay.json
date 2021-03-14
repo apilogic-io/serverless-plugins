@@ -8,8 +8,7 @@
           "type": "Boolean"
         },
         "dynamo": {
-          "type": "B",
-          "value": "__apply__"
+          "type": "B"
         },
         "es": {
 
@@ -23,8 +22,7 @@
           "type": "Int"
         },
         "dynamo": {
-          "type": "N",
-          "value": "__nights__"
+          "type": "N"
         },
         "es": {
 
