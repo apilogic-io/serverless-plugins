@@ -10,7 +10,7 @@
         "dynamo": {
           "type": "S",
           "isKey": true,
-          "value": "$context.stash.location_id"
+          "fromStash": true
         },
         "es": {
         }
@@ -25,7 +25,7 @@
         "dynamo": {
           "type": "S",
           "isKey": true,
-          "value": "$context.stash.owner_id"
+          "fromStash": true
         },
         "es": {
         }
@@ -39,13 +39,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "../common/type",
-            "args": {
-              "type": "$context.arguments.location.general.type",
-              "name": "$context.arguments.location.general.name"
-            }
-          }
+          "ref": "./common/type"
         },
         "es": {
         }
@@ -59,15 +53,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "../common/type",
-            "args": {
-              "shortName": "$context.arguments.location.iso.shortName",
-              "alpha3": "$context.arguments.location.iso.alpha3",
-              "alpha2": "$context.arguments.location.iso.alpha2",
-              "numeric": "$context.arguments.location.iso.numeric"
-            }
-          }
+          "ref": "./common/type"
         },
         "es": {
         }
@@ -81,14 +67,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "../common/type",
-            "args": {
-              "type": "$context.arguments.location.type",
-              "long": "$context.arguments.location.lat",
-              "lat": "$context.arguments.location.long"
-            }
-          }
+          "ref": "./common/type"
         },
         "es": {
         }
@@ -102,13 +81,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "../common/type/locales.json",
-            "args": {
-              "code": "$context.arguments.location.shortDescription.code",
-              "default": "$context.arguments.location.shortDescription.default"
-            }
-          }
+          "ref": "./common/type/locales.json"
         },
         "es": {
         }
@@ -122,13 +95,7 @@
         },
         "dynamo": {
           "type": "M",
-          "ref": {
-            "path": "../common/type/locales.json",
-            "args": {
-              "code": "$context.arguments.location.longDescription.code",
-              "default": "$context.arguments.location.longDescription.default"
-            }
-          }
+          "ref": "./common/type/locales.json"
         },
         "es": {
         }
@@ -142,8 +109,7 @@
         },
         "dynamo": {
           "type": "S",
-          "list": true,
-          "value": "[\"$context.arguments.location.images\"]"
+          "list": true
         },
         "es": {
         }

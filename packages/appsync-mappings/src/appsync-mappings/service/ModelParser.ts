@@ -4,6 +4,7 @@ import {EntityField} from "../models/EntityField";
 import {DynamoFieldProp} from "../models/DynamoFieldProp";
 import {JsonStringifierContext} from "jackson-js/dist/@types";
 import {Infra} from "../models/Infra";
+import {TemplateUtils} from "../utils/TemplateUtils";
 
 export class ModelParser {
 
@@ -19,13 +20,25 @@ export class ModelParser {
 
   public parseEntity(index_path: string, infras: Infra[]): void {
     infras.forEach(infra => {
-      const entityModel = this.readModelInput(index_path, "type", infra.entity);
       // const keyDefinition = this.getKeyDefinitions(entityModel.fields);
       infra.operations.forEach(op => {
         switch (op.type) {
           case "PutItem" : {
-            const vtl = this.putItem(this.keyAttributes(index_path, infra, entityModel.fields))
-            console.log(vtl);
+            const entityModel = this.readModelInput(index_path, "type", infra.entity);
+            const vtl = TemplateUtils.putItem(this.keyAttributes(index_path, infra.entity, entityModel.fields))
+            console.log(vtl); break;
+          }
+          case "TransactWriteItems": {
+              const transactEntities = op.references.map(ref => {
+                let index = op.input;
+                if(op.input !== ref.entity) {
+                  index = op.input + "." + ref.entity;
+                }
+
+                const entityModel = this.readModelInput(index_path, "type", ref.entity);
+                return this.keyAttributes(index_path, index, entityModel.fields);
+              })
+            console.log(transactEntities);
           }
         }
       })
@@ -124,25 +137,17 @@ export class ModelParser {
     }
   }
 
-  private putItem(keyAtributesVtl: KeyAtributesVtl): string {
-    return keyAtributesVtl.vtl + "\n" +
-    "{\"version\": \"2018-05-29\",\n" +
-        "  \"operation\": \"PutItem\",\n" +
-        "\"key\" : $util.toJson(" + keyAtributesVtl.key + "),\n" +
-        "\"attributeValues\" : $util.toJson(" + keyAtributesVtl.attributes + ")\n" +
-    "}"
-  }
-
   // @ts-ignore
-  private keyAttributes(index_path: string, infra: Infra, fields: EntityField[]) : KeyAtributesVtl {
-    const attributes = {field_name: infra.entity + "_attr", selector: "$context.arguments." + infra.entity, children: []};
-    const keys = {field_name: infra.entity + "_key", selector: "$context.arguments." + infra.entity, children: []};
+  private keyAttributes(index_path: string, entity: string, fields: EntityField[]) : KeyAtributesVtl {
+    const field_name = entity.replace(".", "_");
+    const attributes = {field_name: field_name + "_attr", selector: "$context.arguments." + entity, children: []};
+    const keys = {field_name: field_name + "_key", selector: "$context.arguments." + entity, children: []};
     //@ts-ignore
     const keyVtl = this.generateVtl(index_path, fields.filter(ef => ef.props.dynamo.isKey), keys)
     //@ts-ignore
     const attributesVtl = this.generateVtl(index_path, fields, attributes)
-    const attr = "$map_" + infra.entity + "_attr";
-    const key = "$map_" + infra.entity + "_key";
+    const attr = "$map_" + field_name + "_attr";
+    const key = "$map_" + field_name + "_key";
     const vtl = keyVtl + "\n" + attributesVtl + "\n"
     return {key: key, attributes: attr, vtl: vtl}
   }
@@ -224,7 +229,7 @@ interface AttributeDefinition {
   children: Array<AttributeDefinition>
 }
 
-interface KeyAtributesVtl {
+export interface KeyAtributesVtl {
   key: string
   attributes: string
   vtl: string

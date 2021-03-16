@@ -1,10 +1,10 @@
 - entity: hotel
   operations:
-    - type: PutItem
-#    - type: TransactWriteItems
-#      references:
-#        - entity: location
-#        - entity: hotel
+    - type: TransactWriteItems
+      input: hotel
+      references:
+        - entity: location
+        - entity: hotel
 #    - type: GetItem
 #      references:
 #        - entity: location

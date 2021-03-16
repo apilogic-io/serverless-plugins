@@ -6,6 +6,7 @@ export interface Infra {
 
 interface Operation {
     type: string
+    input: string
     references: Reference[]
 }
 

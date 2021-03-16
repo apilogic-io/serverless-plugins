@@ -1,5 +1,5 @@
 {
-  "name": "location",
+  "name": "general",
   "fields": [
     {
       "name" : "type",
