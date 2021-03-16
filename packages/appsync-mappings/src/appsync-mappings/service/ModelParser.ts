@@ -2,7 +2,7 @@ import * as fs from "fs";
 import {JsonAlias, JsonClassType, JsonProperty, JsonStringifier, ObjectMapper} from "jackson-js";
 import {EntityField} from "../models/EntityField";
 import {DynamoFieldProp} from "../models/DynamoFieldProp";
-import {JsonStringifierContext} from "jackson-js/dist/@types";
+import {JsonClassTypeOptions, JsonStringifierContext} from "jackson-js/dist/@types";
 import {Infra} from "../models/Infra";
 import {TemplateUtils} from "../utils/TemplateUtils";
 
@@ -34,31 +34,27 @@ export class ModelParser {
                 if(op.input !== ref.entity) {
                   index = op.input + "." + ref.entity;
                 }
-
                 const entityModel = this.readModelInput(index_path, "type", ref.entity);
                 return this.keyAttributes(index_path, index, entityModel.fields);
               })
-            console.log(transactEntities);
+            const vtl = TemplateUtils.transactWriteItems(transactEntities);
+             console.log(vtl);
           }
         }
       })
     })
   }
 
-  //@ts-ignore
   private generateVtl(index_path: string, fields: EntityField[], parent: AttributeDefinition):string {
     this.constructAttributeDefinitions(index_path,
         fields,
-        //@ts-ignore
         parent);
-    //@ts-ignore
     this.calculateSelectors(parent);
-    //@ts-ignore
     return this.generatePreVtlStatements(parent);
   }
 
   private generatePreVtlStatements(attributeDefinition: AttributeDefinition): string {
-    let vrb = "$map_" + attributeDefinition.field_name;
+    const vrb = "$map_" + attributeDefinition.field_name;
     let vtl = "#set (" + vrb + " = {})\n";
     const mapperContext: JsonStringifierContext = {};
     attributeDefinition.children.forEach(attributeDefinition => {
@@ -144,12 +140,12 @@ export class ModelParser {
     const keys = {field_name: field_name + "_key", selector: "$context.arguments." + entity, children: []};
     //@ts-ignore
     const keyVtl = this.generateVtl(index_path, fields.filter(ef => ef.props.dynamo.isKey), keys)
-    //@ts-ignore
+    // @ts-ignore
     const attributesVtl = this.generateVtl(index_path, fields, attributes)
     const attr = "$map_" + field_name + "_attr";
     const key = "$map_" + field_name + "_key";
     const vtl = keyVtl + "\n" + attributesVtl + "\n"
-    return {key: key, attributes: attr, vtl: vtl}
+    return {key: key, table: entity, attributes: attr, vtl: vtl}
   }
 
   private constructAttributeDefinitions(index_path: string,
@@ -206,13 +202,13 @@ export class ModelParser {
 
 }
 
-export class EntityModel {
+class EntityModel {
 
-  @JsonProperty() @JsonClassType({type: () => [String]})
+  @JsonProperty() @JsonClassType(<JsonClassTypeOptions>{type: () => [String]})
   @JsonAlias({values: ['name']})
   name: String;
 
-  @JsonProperty() @JsonClassType({type: () => [Array, [EntityField]]})
+  @JsonProperty() @JsonClassType(<JsonClassTypeOptions>{type: () => [Array, [EntityField]]})
   fields: EntityField[];
 
 }
@@ -231,6 +227,7 @@ interface AttributeDefinition {
 
 export interface KeyAtributesVtl {
   key: string
+  table: string
   attributes: string
   vtl: string
 }
