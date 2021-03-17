@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "A blank schematics",
   "scripts": {
+    "build:watch": "tsc -p tsconfig.json --watch",
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && jasmine src/**/*_spec.js",
     "debug": "node --inspect-brk $(which schematics) .:appsync-mappings --name=test"

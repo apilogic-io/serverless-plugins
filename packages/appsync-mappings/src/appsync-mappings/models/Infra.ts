@@ -1,7 +1,7 @@
 
 export interface Infra {
     entity: string
-    operations: Operation[]
+    operations: Array<Operation>
 }
 
 interface Operation {
