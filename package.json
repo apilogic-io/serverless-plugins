@@ -18,6 +18,7 @@
     "lint": "eslint **/*.ts"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.168",
     "rimraf": "^3.0.2"
   },
   "version": "1.0.0",

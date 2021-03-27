@@ -1,14 +1,44 @@
 - entity: hotel
+  dataSource: Hotels
   operations:
-    - type: TransactWriteItems
-      input: hotel
-      references:
-        - entity: location
-        - entity: hotel
-#    - type: GetItem
-#      references:
-#        - entity: location
-#        - entity: location
-#          path: airports[].location
-#        - entity: account
-#          path: owner
+    - name: createHotel
+      type: Mutation
+      pipeline:
+        - type: TransactWriteItems
+          items: # used as create transactional creation
+            - entity: location
+            - entity: hotel
+        - type: GetItem
+          items: # used to create pipeline resolvers
+            - entity: location
+              path: location_id
+            - entity: location
+              path: city_id
+            - entity: location
+              path: airports[].location
+            - entity: account
+              path: owner_id
+    - name: getHotel
+      type: Query
+      pipeline:
+        - type: GetItem
+          items: # used to create pipeline resolvers
+            - entity: hotel
+              path: hotel_id
+            - entity: location
+              path: location_id
+            - entity: location
+              path: city_id
+            - entity: location
+              path: airports[].location
+            - entity: account
+              path: owner_id
+#- entity: account
+#  operations:
+#    - name: getAccount
+#      pipeline:
+#        - type: GetItem
+#          items: # used to create pipeline resolvers
+#            - entity: account
+#              path: account_id
+

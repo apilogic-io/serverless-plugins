@@ -18,50 +18,78 @@ export class ModelParser {
     return objectMapper.parse<EntityModel>(modelsJson, {mainCreator: () => [EntityModel]});
   }
 
-  public parseEntity(index_path: string, infras: Infra[]): Mappings[] {
+  public parseEntity(index_path: string, infras: Infra[]): Operation[] {
     //@ts-ignore
-    return infras.map(infra => {
-      // const keyDefinition = this.getKeyDefinitions(entityModel.fields);
-      const mappings = infra.operations.map(op => {
-        switch (op.type) {
-          case "PutItem" : {
-            const entityModel = this.readModelInput(index_path, "type", infra.entity);
-            return {
-              func: "create " + infra.entity,
-              template: TemplateUtils.putItem(this.keyAttributes(index_path, infra.entity, entityModel.fields))
+    const operation = [];
+    infras.forEach(infra => {
+      infra.operations.forEach(op => {
+        op.pipeline.forEach(pipe => {
+          switch (pipe.type) {
+            case "PutItem" : {
+              const entityModel = this.readModelInput(index_path, "type", infra.entity);
+              operation.push({
+                path: infra.entity,
+                mainType: op.type,
+                type: "mutations",
+                dataSource: infra.dataSource,
+                template: TemplateUtils.putItem(this.keyAttributes(index_path, infra.entity, entityModel.fields))
+              }); break
             }
-          }
-          case "TransactWriteItems": {
-            const  items = [];
-              const transactEntities = op.references.map(ref => {
-                let index = op.input;
-                if(op.input !== ref.entity) {
-                  index = op.input + "." + ref.entity;
+            case "TransactWriteItems": {
+              const  items = [];
+              const transactEntities = pipe.items.map(ref => {
+                let index = infra.entity;
+                if(index !== ref.entity) {
+                  index = index + "." + ref.entity;
                 }
                 const entityModel = this.readModelInput(index_path, "type", ref.entity);
                 const keyAttributes = this.keyAttributes(index_path, index, entityModel.fields)
                 return {
-                  func: "create " + ref.entity,
+                  name: op.name,
+                  context: ref.entity,
+                  type: "mutations",
                   template: TemplateUtils.putItem(keyAttributes),
+                  dataSource: infra.dataSource,
                   keyAttributes: keyAttributes
                 }
               })
-            const keyAttributes = transactEntities.map(tr => tr.keyAttributes);
-            const mainItem = {
-              func: "create " + infra.entity + " pipeline",
-              template: TemplateUtils.transactWriteItems(keyAttributes)
+              const keyAttributes = transactEntities.map(tr => tr.keyAttributes);
+              const mainItem = {
+                name: op.name,
+                func: "create " + infra.entity,
+                path: infra.entity,
+                context: infra.entity,
+                type: "mutations",
+                mainType: op.type,
+                dataSource: infra.dataSource,
+                template: TemplateUtils.transactWriteItems(keyAttributes)
+              }
+              items.push(transactEntities)
+              items.push(mainItem)
+              operation.push(...[mainItem]);
+            } break;
+            case "GetItem": {
+              pipe.items.forEach(item => {
+                const pipeItem = {
+                  name: op.name,
+                  func: "get " + item.path.split("_")[0],
+                  type: "query",
+                  mainType: op.type,
+                  path: item.path.split("_")[0],
+                  context: infra.entity,
+                  dataSource: infra.dataSource,
+                  template: TemplateUtils.getItem(item.path, infra.entity, item.entity)
+                }
+                operation.push(pipeItem);
+              })
             }
-            items.push(transactEntities)
-            items.push(mainItem)
-            return [...transactEntities, mainItem];
           }
-        }
-      })
-      return {
-        entity: infra.entity,
-        mappings: mappings
-      }
+        })
+
+      });
     })
+    //@ts-ignore
+    return operation;
   }
 
   private generateVtl(index_path: string, fields: EntityField[], parent: AttributeDefinition):string {
@@ -252,13 +280,12 @@ export interface KeyAtributesVtl {
 }
 
 export interface Operation {
+  name: string,
+  mainType: string,
+  type: string,
+  context: string,
+  path: string,
   func: string,
-  template: string,
-  keyAttributes: KeyAtributesVtl[]
+  dataSource: string,
+  template: string
 }
-
-export interface Mappings {
-  entity: string,
-  mappings: Operation[]
-}
-

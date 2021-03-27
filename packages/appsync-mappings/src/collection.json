@@ -3,7 +3,8 @@
   "schematics": {
     "appsync-mappings": {
       "description": "A blank schematic.",
-      "factory": "./appsync-mappings/index#appsyncMappings"
+      "factory": "./appsync-mappings/index#appsyncMappings",
+      "schema": "./appsync-mappings/schema.json"
     }
   }
 }

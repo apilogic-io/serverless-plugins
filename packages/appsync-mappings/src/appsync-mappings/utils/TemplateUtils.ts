@@ -30,4 +30,28 @@ export class TemplateUtils {
                 "\"attributeValues\" : $util.toJson(" + keyAtributesVtl.attributes + ")\n";
     }
 
+    public static getItem(path: string, parentCtx: string, ctx: string) {
+        const paths = path.split("[]")
+        if(paths.length > 1) {
+
+        }
+        else {
+            let context = ["$ctx.stash",parentCtx, ctx].join(".")
+            if(parentCtx === ctx) {
+                context = ["$ctx.stash",parentCtx].join(".")
+            }
+            if(parentCtx === undefined ) {
+                context = ["$ctx.arguments",ctx].join(".")
+            }
+            return paths.map(sp => {
+                return "{\"version\": \"2018-05-29\",\n" +
+                    "  \"operation\": \"GetItem\",\n" +
+                    "\"key\": {" +
+                    "\"id\":" + context + "." + sp + "}" +
+                    "}"
+            })
+        }
+    }
+
+
 }
