@@ -19,4 +19,5 @@ interface Pipeline {
 interface Reference {
     entity: string,
     path: string
+    dataSource: string
 }

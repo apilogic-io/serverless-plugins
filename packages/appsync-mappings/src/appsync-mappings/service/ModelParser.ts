@@ -29,8 +29,9 @@ export class ModelParser {
               const entityModel = this.readModelInput(index_path, "type", infra.entity);
               operation.push({
                 path: infra.entity,
-                mainType: op.type,
+                mainType: "Mutation",
                 type: "mutations",
+                mainDataSource: infra.dataSource,
                 dataSource: infra.dataSource,
                 template: TemplateUtils.putItem(this.keyAttributes(index_path, infra.entity, entityModel.fields))
               }); break
@@ -48,8 +49,10 @@ export class ModelParser {
                   name: op.name,
                   context: ref.entity,
                   type: "mutations",
+                  mainType: "Mutation",
                   template: TemplateUtils.putItem(keyAttributes),
-                  dataSource: infra.dataSource,
+                  mainDataSource: infra.dataSource,
+                  dataSource: ref.dataSource,
                   keyAttributes: keyAttributes
                 }
               })
@@ -60,7 +63,8 @@ export class ModelParser {
                 path: infra.entity,
                 context: infra.entity,
                 type: "mutations",
-                mainType: op.type,
+                mainType: "Mutation",
+                mainDataSource: infra.dataSource,
                 dataSource: infra.dataSource,
                 template: TemplateUtils.transactWriteItems(keyAttributes)
               }
@@ -74,10 +78,11 @@ export class ModelParser {
                   name: op.name,
                   func: "get " + item.path.split("_")[0],
                   type: "query",
-                  mainType: op.type,
+                  mainType: "Query",
                   path: item.path.split("_")[0],
                   context: infra.entity,
-                  dataSource: infra.dataSource,
+                  mainDataSource: infra.dataSource,
+                  dataSource: item.dataSource,
                   template: TemplateUtils.getItem(item.path, infra.entity, item.entity)
                 }
                 operation.push(pipeItem);
@@ -120,7 +125,7 @@ export class ModelParser {
             vtl = vtl + child +
                 "#if(!" + vrbc + ".isEmpty())\n" +
                 "$util.qr(" + vrb + ".put(\"" + attributeDefinition.field_name + "\",{\"M\":" + vrbc + "}))\n" +
-                "#end";
+                "#end\n";
           }
         }
         else {
@@ -286,6 +291,7 @@ export interface Operation {
   context: string,
   path: string,
   func: string,
+  mainDataSource: string,
   dataSource: string,
   template: string
 }

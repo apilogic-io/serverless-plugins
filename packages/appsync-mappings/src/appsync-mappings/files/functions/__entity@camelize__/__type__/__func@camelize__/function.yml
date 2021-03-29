@@ -1,0 +1,4 @@
+- name: <%=camelize(func)%>
+  dataSource: <%=dataSource%>
+  request: <%=camelize(entity)%>/<%=type%>/<%=camelize(func)%>/request-mapping-template.vtl
+  response: <%=camelize(entity)%>/<%=type%>/<%=camelize(func)%>/response-mapping-template.vtl

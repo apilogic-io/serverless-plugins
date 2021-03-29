@@ -41,6 +41,14 @@
         "$source": "argv",
         "index": 1
       }
+    },
+    "projPath": {
+      "description": "The path where templates will be generated",
+      "type": "string",
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      }
     }
 //    "inlineStyle": {
 //      "description": "Include styles inline in the root component.ts file. Only CSS styles can be included inline. Default is false, meaning that an external styles file is created and referenced in the root component.ts file.",

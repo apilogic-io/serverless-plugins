@@ -1,0 +1,6 @@
+  appSync:
+    mappingTemplatesLocation: mapping-templates
+    mappingTemplates: <% for(var i=0;i<mappings.length;i++){ %>
+      - ${file(${self:custom.props.mappingTemplates}/<%=camelize(mappings[i].name)%>/mapping.yml)}<% } %>
+    functionConfigurations: <% for(var i=0;i<functions.length;i++){ %>
+      - ${file(${self:custom.props.mappingTemplates}/<%=camelize(functions[i].name)%>/<%=functions[i].type%>/<%=camelize(functions[i].func)%>/function.yml)}<% } %>

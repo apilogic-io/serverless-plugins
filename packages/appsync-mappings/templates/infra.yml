@@ -7,31 +7,42 @@
         - type: TransactWriteItems
           items: # used as create transactional creation
             - entity: location
+              dataSource: Locations
             - entity: hotel
+              dataSource: Hotels
         - type: GetItem
           items: # used to create pipeline resolvers
             - entity: location
               path: location_id
+              dataSource: Locations
             - entity: location
               path: city_id
+              dataSource: Locations
             - entity: location
               path: airports[].location
+              dataSource: Locations
             - entity: account
               path: owner_id
+              dataSource: Accounts
     - name: getHotel
       type: Query
       pipeline:
         - type: GetItem
           items: # used to create pipeline resolvers
             - entity: hotel
+              dataSource: Hotels
               path: hotel_id
             - entity: location
+              dataSource: Locations
               path: location_id
             - entity: location
+              dataSource: Locations
               path: city_id
             - entity: location
+              dataSource: Locations
               path: airports[].location
             - entity: account
+              dataSource: Accounts
               path: owner_id
 #- entity: account
 #  operations:

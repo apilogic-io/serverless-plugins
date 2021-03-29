@@ -1,0 +1,8 @@
+- type: <%=mainType%>
+  dataSource: <%=dataSource%>
+  field: <%=camelize(entity)%>Pipeline
+  kind: PIPELINE
+  request: <%=camelize(entity)%>/<%=type%>/before-request-mapping-template.vtl
+  response: <%=camelize(entity)%>/<%=type%>/after-response-mapping-template.vtl
+  functions: <% for(var i=0;i<functions.length;i++){ %>
+    - <%=camelize(functions[i])%><% } %>
