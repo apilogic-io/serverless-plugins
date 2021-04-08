@@ -60,5 +60,8 @@
     "prettier": "^2.2.1",
     "semantic-release": "^17.3.0"
   },
-  "gitHead": "8a13d84f2d52085dbe277c9066631d99a6d94e43"
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "0c8fdb83d33fced3a2748dac1d83b2c73fcf3299"
 }
