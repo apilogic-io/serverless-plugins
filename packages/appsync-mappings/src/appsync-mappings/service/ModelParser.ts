@@ -1,8 +1,8 @@
 import * as fs from "fs";
-import {JsonAlias, JsonClassType, JsonProperty, JsonStringifier, ObjectMapper} from "jackson-js";
+import {JsonAlias, JsonClassType, JsonProperty, ObjectMapper} from "jackson-js";
 import {EntityField} from "../models/EntityField";
 import {DynamoFieldProp} from "../models/DynamoFieldProp";
-import {JsonClassTypeOptions, JsonStringifierContext} from "jackson-js/dist/@types";
+import {JsonClassTypeOptions} from "jackson-js/dist/@types";
 import {Infra} from "../models/Infra";
 import {TemplateUtils} from "../utils/TemplateUtils";
 
@@ -108,14 +108,12 @@ export class ModelParser {
   private generatePreVtlStatements(attributeDefinition: AttributeDefinition): string {
     const vrb = "$map_" + attributeDefinition.field_name;
     let vtl = "#set (" + vrb + " = {})\n";
-    const mapperContext: JsonStringifierContext = {};
     attributeDefinition.children.forEach(attributeDefinition => {
         if(!attributeDefinition.isList) {
           if(!attributeDefinition.isMap) {
             vtl = vtl +
                 "#if(" + attributeDefinition.selector + ")\n" +
-                "$util.qr(" + vrb + ".put(\"" + attributeDefinition.field_name + "\", " +
-                new JsonStringifier().stringify(ModelParser.generateFieldValue(attributeDefinition.field_type, attributeDefinition.selector), mapperContext) + "))\n" +
+                "$util.qr(" + vrb + ".put(\"" + attributeDefinition.field_name + "\", " + attributeDefinition.selector + "))\n" +
                 "#end\n";
           }
           else {
@@ -124,48 +122,46 @@ export class ModelParser {
 
             vtl = vtl + child +
                 "#if(!" + vrbc + ".isEmpty())\n" +
-                "$util.qr(" + vrb + ".put(\"" + attributeDefinition.field_name + "\",{\"M\":" + vrbc + "}))\n" +
+                "$util.qr(" + vrb + ".put(\"" + attributeDefinition.field_name + "\", " + vrbc + "))\n" +
                 "#end\n";
           }
         }
         else {
+
           const vrbc = "$array_" + attributeDefinition.field_name;
           let foreach;
           if(attributeDefinition.isMap) {
             const child = this.generatePreVtlStatements(attributeDefinition)
             const map = "$map_" + attributeDefinition.field_name + "";
-            const map_m = map + "_m";
               foreach = "#set("+ vrbc + " = [])\n" +
                 "#foreach($" + attributeDefinition.field_name + "_entry in " + attributeDefinition.selector + ")\n" +
                 child + "\n" +
                 "#if(!" + map + ".isEmpty())\n" +
-                "#set (" + map_m + " = {})\n" +
-                "$util.qr(" + map_m + ".put(\"M\", " + map + "))\n" +
-                "$util.qr(" + vrbc + ".add(" + map_m +"))\n" +
+                "$util.qr(" + vrbc + ".add(" + map +"))\n" +
                 "#end\n" +
               "#end\n"
           }
           else {
-            const child = ModelParser.generateFieldValue(attributeDefinition.field_type, "$" + attributeDefinition.field_name + "_entry")
+            const child = "$" + attributeDefinition.field_name + "_entry";
             foreach = "#set("+ vrbc + " = [])\n" +
                 "#foreach($" + attributeDefinition.field_name + "_entry in " + attributeDefinition.selector + ")\n" +
-                "$util.qr(" + vrbc + ".add(" + new JsonStringifier().stringify(child, mapperContext) + "))\n" +
+                "$util.qr(" + vrbc + ".add(" + child + "))\n" +
                 "#end\n"
           }
           vtl = vtl + foreach +
               "#if(!" + vrbc + ".isEmpty())\n" +
-              "$util.qr(" + vrb + ".put(\"" + attributeDefinition.field_name + "\",{\"L\":"  + vrbc + "}))\n" +
+              "$util.qr(" + vrb + ".put(\"" + attributeDefinition.field_name + "\","  + vrbc + "))\n" +
               "#end\n"
         }
     })
     return vtl;
   }
 
-  private static generateFieldValue(fieldType: string, value: string): Map<string, string> {
-    const cont = new Map<string, string>();
-    cont.set(fieldType, value);
-    return cont;
-  }
+  // private static generateFieldValue(fieldType: string, value: string): Map<string, string> {
+  //   const cont = new Map<string, string>();
+  //   cont.set(fieldType, value);
+  //   return cont;
+  // }
 
   private calculateSelectors(attr: AttributeDefinition): void {
     if(attr.children !== undefined) {
