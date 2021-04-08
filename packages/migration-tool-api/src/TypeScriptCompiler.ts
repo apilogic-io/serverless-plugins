@@ -1,3 +1,4 @@
+// @ts-ignore
 import * as ts from 'typescript'
 import * as fs from 'fs-extra'
 import * as path from 'path'

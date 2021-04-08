@@ -38,5 +38,5 @@
     "@apilogic/migration-tool-api": "^1.0.19",
     "chalk": "^4.1.0"
   },
-  "gitHead": "0e1a16d1c98892538b2747cb01569cafae6ce3b6"
+  "gitHead": "c49ffdd5cdccfb7a8bb93a71d647deac3ee8f0c8"
 }
