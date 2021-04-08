@@ -1,6 +1,6 @@
 {
   "name": "@apilogic/migration-tool-serverless",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "Serverless migration plugin",
   "repository": {
     "type": "git",
@@ -35,7 +35,7 @@
     "ts-node": "^9.1.1"
   },
   "dependencies": {
-    "@apilogic/migration-tool-api": "^1.0.20",
+    "@apilogic/migration-tool-api": "^1.0.21",
     "chalk": "^4.1.0"
   },
   "gitHead": "8a13d84f2d52085dbe277c9066631d99a6d94e43"
