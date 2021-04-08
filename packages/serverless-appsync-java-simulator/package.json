@@ -7,6 +7,7 @@
     "url": "https://github.com/apilogic-io/serverless-plugins.git",
     "directory": "packages/migration-tool-serverless"
   },
+
   "keywords": [
     "serverless",
     "serverless framework",
