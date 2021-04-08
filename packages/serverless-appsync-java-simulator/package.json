@@ -59,5 +59,6 @@
     "eslint-plugin-prettier": "^3.2.0",
     "prettier": "^2.2.1",
     "semantic-release": "^17.3.0"
-  }
+  },
+  "gitHead": "b3adf5c509b2e401d4944d04cbd5ff33d1d55b98"
 }
