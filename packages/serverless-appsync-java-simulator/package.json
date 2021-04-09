@@ -1,6 +1,6 @@
 {
   "name": "@apilogic/serverless-appsync-java-simulator",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "Offline support for java serverless-appsync-plugin",
   "repository": {
     "type": "git",
