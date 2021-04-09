@@ -1,5 +1,6 @@
 import { AmplifyAppSyncSimulatorAuthenticationType as AuthTypes } from 'amplify-appsync-simulator';
 import {invokeResource} from 'amplify-java-function-runtime-provider/lib/utils/invoke';
+import {invoke} from 'amplify-nodejs-function-runtime-provider/lib/utils/invoke';
 import axios from 'axios';
 import fs from 'fs';
 import { forEach, isNil, first } from 'lodash';
@@ -95,26 +96,49 @@ export default function getAppSyncConfig(context, appSyncConfig) {
           });
           return null;
         }
+        if(func.runtime === 'java') {
 
-        return {
-          ...dataSource,
-          invoke: (payload) =>
-            invokeResource({
-              srcRoot: path.join(
-                context.serverless.config.servicePath,
-                context.options.location,
-              ),
-              handler: func.handler,
-              event: JSON.stringify(payload),
-              environment: {
-                ...(context.options.lambda.loadLocalEnv === true
-                  ? process.env
-                  : {}),
-                ...context.serverless.service.provider.environment,
-                ...func.environment,
-              },
-            }),
-        };
+          return {
+            ...dataSource,
+            invoke: (payload) =>
+                invokeResource({
+                  srcRoot: path.join(
+                      context.serverless.config.servicePath,
+                      context.options.location,
+                  ),
+                  handler: func.handler,
+                  event: JSON.stringify(payload),
+                  environment: {
+                    ...(context.options.lambda.loadLocalEnv === true
+                        ? process.env
+                        : {}),
+                    ...context.serverless.service.provider.environment,
+                    ...func.environment,
+                  },
+                }),
+          };
+        }
+        else {
+           return {
+            ...dataSource,
+            invoke: (payload) =>
+                invoke({
+                  packageFolder: path.join(
+                      context.serverless.config.servicePath,
+                      context.options.location,
+                  ),
+                  handler: func.handler,
+                  event: JSON.stringify(payload),
+                  environment: {
+                    ...(context.options.lambda.loadLocalEnv === true
+                        ? process.env
+                        : {}),
+                    ...context.serverless.service.provider.environment,
+                    ...func.environment,
+                  },
+                }),
+          };
+        }
       }
       case 'AMAZON_ELASTICSEARCH':
       case 'HTTP': {
