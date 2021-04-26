@@ -30,7 +30,7 @@ export class ApiLogicDataMigration {
     this.dataAPI = dataAPI;
     this.migrationAPI = migrationAPI;
     this.migrationsPath = path.join(this.cwd, migrationsFolder || 'migrations');
-    this.buildPath = path.join(this.cwd, '.migrations_build')
+    this.buildPath = path.join(this.cwd, migrationsFolder, '.migrations_build')
   }
 
   public async getAppliedMigrationIds (): Promise<string[]> {

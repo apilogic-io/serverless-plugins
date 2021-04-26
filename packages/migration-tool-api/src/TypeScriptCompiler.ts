@@ -1,4 +1,3 @@
-// @ts-ignore
 import * as ts from 'typescript'
 import * as fs from 'fs-extra'
 import * as path from 'path'
@@ -18,12 +17,6 @@ export class TypeScriptCompiler extends Compiler {
       .map((fileName) => path.join(this.migrationsPath, fileName));
     const program = ts.createProgram(files, options);
     const result = program.emit();
-    files.filter(f => !f.includes(".ts")).forEach(f => {
-      fs.copySync(
-          f,
-          options.outDir,
-      );
-    });
     return result.emittedFiles;
   }
 
