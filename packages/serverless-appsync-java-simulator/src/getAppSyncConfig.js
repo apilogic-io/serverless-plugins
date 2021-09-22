@@ -96,7 +96,7 @@ export default function getAppSyncConfig(context, appSyncConfig) {
           });
           return null;
         }
-        if(func.runtime === 'java') {
+        if(func.runtime === 'java8' || func.runtime === 'java11') {
 
           return {
             ...dataSource,

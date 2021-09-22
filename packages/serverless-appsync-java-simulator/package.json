@@ -33,7 +33,6 @@
   "author": "Vitalie Robu",
   "license": "MIT",
   "dependencies": {
-    "amplify-appsync-simulator": "^1.23.9",
     "amplify-java-function-runtime-provider": "^1.6.4",
     "amplify-nodejs-function-runtime-provider": "^1.5.3",
     "aws-sdk": "^2.792.0",
@@ -47,6 +46,7 @@
     "merge-graphql-schemas": "^1.5.8"
   },
   "devDependencies": {
+    "amplify-appsync-simulator": "^1.27.7",
     "@babel/cli": "^7.12.1",
     "@babel/core": "^7.12.3",
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
