@@ -1,6 +1,6 @@
 {
   "name": "@apilogic/serverless-appsync-java-simulator",
-  "version": "1.0.23",
+  "version": "1.0.26",
   "description": "Offline support for java serverless-appsync-plugin",
   "repository": {
     "type": "git",
@@ -46,13 +46,13 @@
     "merge-graphql-schemas": "^1.5.8"
   },
   "devDependencies": {
-    "amplify-appsync-simulator": "^1.27.7",
     "@babel/cli": "^7.12.1",
     "@babel/core": "^7.12.3",
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "@semantic-release/git": "^9.0.0",
     "all-contributors-cli": "^6.19.0",
+    "amplify-appsync-simulator": "^1.27.7",
     "babel-eslint": "^10.1.0",
     "babel-plugin-inline-import": "^3.0.0",
     "eslint": "^7.13.0",
