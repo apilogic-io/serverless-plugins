@@ -27,7 +27,7 @@ class ApiLogicDataMigrationServerless implements Plugin {
             }
         };
 
-        this.stage = options.stage || 'local';
+        this.stage = options.name || 'local';
         const lifecycleEvents = this.stage === 'local' ? ['init', 'exec', 'end'] : ['exec'];
 
         this.commands = {
