@@ -36,7 +36,7 @@
     "ts-node": "^9.1.1"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^7.10.0",
+    "@opensearch-project/opensearch": "^1.0.0",
     "aws-sdk": "^2.828.0",
     "elasticsearch": "^16.7.2",
     "http-aws-es": "^6.0.0"

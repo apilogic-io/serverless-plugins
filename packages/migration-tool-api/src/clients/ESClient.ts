@@ -1,5 +1,5 @@
 import {ApiClient} from "./ApiClient";
-import {Client} from 'elasticsearch'
+import {Client} from '@opensearch-project/opensearch'
 import {DataApiClientModule} from "../DataApiClientModule";
 import {EnvironmentCredentials} from 'aws-sdk';
 import {httpAWSESClass} from 'http-aws-es';
@@ -32,6 +32,10 @@ export class ESClient implements ApiClient {
         const prefix = options.envPrefix || 'AWS';
         const region = options.region || process.env[`${prefix}_REGION`];
         const host = options.endpoint || process.env[`${prefix}_HOST`];
+        const auth = {
+            username: "admin",
+            password: "admin"
+        };
 
         delete options.region; // this doesn't belong in ES options
 
@@ -46,6 +50,7 @@ export class ESClient implements ApiClient {
 
         const config = Object.assign({}, options, {
             host: host,
+            auth: auth,
             amazonES: {
                 region,
                 credentials
