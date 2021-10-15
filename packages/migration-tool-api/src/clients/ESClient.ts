@@ -36,7 +36,6 @@ export class ESClient implements ApiClient {
             username: "admin",
             password: "admin"
         };
-
         delete options.region; // this doesn't belong in ES options
 
         if (!region) {
