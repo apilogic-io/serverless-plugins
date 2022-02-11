@@ -29,7 +29,7 @@ export class ApiLogicDataMigration {
     this.cwd = cwd || process.cwd();
     this.dataAPI = dataAPI;
     this.migrationAPI = migrationAPI;
-    this.migrationsPath = path.join(this.cwd, migrationsFolder || 'migrations');
+    this.migrationsPath = path.join(this.cwd, migrationsFolder);
     this.buildPath = path.join(this.cwd, migrationsFolder, '.migrations_build')
   }
 
