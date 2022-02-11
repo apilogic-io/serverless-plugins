@@ -1,7 +1,6 @@
 import {ApiClient} from "./ApiClient";
-import {Client} from 'elasticsearch'
+import {Client} from '@opensearch-project/opensearch'
 import {DataApiClientModule} from "../DataApiClientModule";
-import {EnvironmentCredentials} from 'aws-sdk';
 import {httpAWSESClass} from 'http-aws-es';
 import ClientConfig = DataApiClientModule.ClientConfig;
 import * as fs from "fs";
@@ -19,8 +18,9 @@ export class ESClient implements ApiClient {
     }
 
     private static initClient(config: ClientConfig) {
-
-        return new Client(this.getOptions(config.config));
+        const options = this.getOptions(config.config);
+        console.log(options);
+        return new Client(options);
     }
 
     private static getOptions(options) {
@@ -38,17 +38,12 @@ export class ESClient implements ApiClient {
         if (!region) {
             throw new TypeError('region is required');
         }
-        if (!host) {
-            throw new TypeError('host is required');
-        }
-
-        const credentials = options.credentials || new EnvironmentCredentials(prefix);
 
         const config = Object.assign({}, options, {
-            host: host,
-            amazonES: {
-                region,
-                credentials
+            node: host,
+            auth: {
+                username: options.url.username,
+                password: options.url.password
             }
         });
 
@@ -72,7 +67,9 @@ export class ESClient implements ApiClient {
                              settingsPath: string,
                              mappingsPath: string): Promise<unknown> {
         const indexExist =  await this.client.indices.exists({ index });
-        if(!indexExist) {
+        console.log("EXISTS " + indexExist)
+        if(!indexExist.body) {
+            console.log("Creating index:" + index);
             const settings = JSON.parse(fs.readFileSync(workingDir + settingsPath,  "utf8"));
             const body = {
                 settings
@@ -84,7 +81,7 @@ export class ESClient implements ApiClient {
             };
             await this.client.indices.create(template);
         }
-        return await this.mappingsPayload(index, workingDir, mappingsPath);
+        return this.mappingsPayload(index, workingDir, mappingsPath);
 
     }
 
