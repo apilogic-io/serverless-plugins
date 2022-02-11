@@ -31,7 +31,7 @@ export class ESClient implements ApiClient {
 
         const prefix = options.envPrefix || 'AWS';
         const region = options.region || process.env[`${prefix}_REGION`];
-        const host = options.endpoint || process.env[`${prefix}_HOST`];
+        const host = options.url.host || process.env[`${prefix}_HOST`];
 
         delete options.region; // this doesn't belong in ES options
 
