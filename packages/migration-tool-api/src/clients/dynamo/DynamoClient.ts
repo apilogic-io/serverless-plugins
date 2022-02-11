@@ -7,7 +7,7 @@ export class DynamoClient implements ApiClient {
     private tableName: string;
 
     constructor({config, options}) {
-        const tableName = config.config;
+        const tableName = config.config.tableName;
         if (!tableName) {
             throw new Error(`Invalid DynamoDBConfig ${JSON.stringify(config, null, 4)}`);
         }
