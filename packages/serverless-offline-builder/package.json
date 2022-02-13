@@ -1,0 +1,43 @@
+{
+  "name": "@apilogic/serverless-offline-builder",
+  "version": "1.0.38",
+  "description": "Serverless offline builder",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apilogic-io/serverless-plugins.git",
+    "directory": "packages/serverless-offline-builder"
+  },
+  "keywords": [
+    "AWS ES Serverless oflline builder",
+    "Serverless",
+    "Plugin",
+    "Local",
+    "Offline",
+    "builder"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "npm run compile",
+    "clean": "rm -rf lib",
+    "compile": "tsc -b tsconfig.build.json --force --verbose",
+    "prepare": "npm run build"
+  },
+  "author": "Vitalie Robu",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/serverless": "^1.78.18",
+    "serverless": "^2.18.0",
+    "ts-node": "^9.1.1"
+  },
+  "dependencies": {
+    "chalk": "^4.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "0c8fdb83d33fced3a2748dac1d83b2c73fcf3299"
+}
