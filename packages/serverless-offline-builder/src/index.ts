@@ -77,7 +77,8 @@ export class OfflineBuilderServerlessPlugin implements ServerlessPlugin {
     async bundle(): Promise<string> {
         fs.mkdirpSync(this.buildDirPath);
         for (const [functionAlias, fn] of Object.entries(this.functions)) {
-            const fnPath = path.join(this.serviceDirPath, "src");
+            const selfPath = (fn.environment === undefined || fn.environment.selfPath === undefined) ? "" : fn.environment.selfPath
+            const fnPath = path.join(this.serviceDirPath, selfPath, "src");
             fs.copySync(fnPath, this.buildDirPath);
             fn.handler = path.join(WORK_FOLDER, fn.handler);
             console.log(functionAlias, fn)
