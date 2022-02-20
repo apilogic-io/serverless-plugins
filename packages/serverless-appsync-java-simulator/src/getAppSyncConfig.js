@@ -107,6 +107,7 @@ export default function getAppSyncConfig(context, appSyncConfig) {
                       context.options.location,
                   ),
                   handler: func.handler,
+                  package: func.environment.servicePackage,
                   event: JSON.stringify(payload),
                   environment: {
                     ...(context.options.lambda.loadLocalEnv === true
