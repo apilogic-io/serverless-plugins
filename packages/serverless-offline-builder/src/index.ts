@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as Serverless from 'serverless';
 import * as ServerlessPlugin from 'serverless/classes/Plugin';
 import {build} from 'esbuild';
-import {nodeExternalsPlugin} from 'esbuild-node-externals';
 import {BUILD_FOLDER, WORK_FOLDER} from "./constants";
 import {providerRuntimeMatcher} from "./helper";
 
@@ -88,7 +87,7 @@ export class OfflineBuilderServerlessPlugin implements ServerlessPlugin {
                 bundle: true,
                 platform: 'node',
                 outfile: functionHandler,
-                plugins: [ nodeExternalsPlugin({})]
+                plugins: [ ]
             })
             fn.handler = path.join(WORK_FOLDER, fn.handler);
             console.log(functionAlias, fn)
