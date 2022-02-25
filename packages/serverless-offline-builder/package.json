@@ -1,6 +1,6 @@
 {
   "name": "@apilogic/serverless-offline-builder",
-  "version": "1.0.44",
+  "version": "1.0.45",
   "description": "Serverless offline builder",
   "repository": {
     "type": "git",
