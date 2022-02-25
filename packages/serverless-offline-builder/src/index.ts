@@ -2,6 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as Serverless from 'serverless';
 import * as ServerlessPlugin from 'serverless/classes/Plugin';
+import {build} from 'esbuild';
 import {BUILD_FOLDER, WORK_FOLDER} from "./constants";
 import {providerRuntimeMatcher} from "./helper";
 
@@ -78,8 +79,15 @@ export class OfflineBuilderServerlessPlugin implements ServerlessPlugin {
         fs.mkdirpSync(this.buildDirPath);
         for (const [functionAlias, fn] of Object.entries(this.functions)) {
             const selfPath = (fn.environment === undefined || fn.environment.selfPath === undefined) ? "" : fn.environment.selfPath
-            const fnPath = path.join(this.serviceDirPath, selfPath, "src");
-            fs.copySync(fnPath, this.buildDirPath);
+            const fnPath = path.join(this.serviceDirPath, selfPath);
+            const js = fn.handler.split('.')[0];
+            const functionHandler = path.join(WORK_FOLDER, js + ".js");
+            build({
+                entryPoints: [path.join(fnPath)],
+                bundle: true,
+                platform: 'node',
+                outfile: functionHandler
+            })
             fn.handler = path.join(WORK_FOLDER, fn.handler);
             console.log(functionAlias, fn)
         }
