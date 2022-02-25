@@ -35,7 +35,8 @@
   },
   "dependencies": {
     "chalk": "^4.1.0",
-    "esbuild": "^0.14.23"
+    "esbuild": "^0.14.18",
+    "esbuild-node-externals": "^1.4.1"
   },
   "publishConfig": {
     "access": "public"
