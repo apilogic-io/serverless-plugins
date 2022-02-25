@@ -97,6 +97,7 @@ export class OfflineBuilderServerlessPlugin implements ServerlessPlugin {
         this.serverless.cli.log('Compiling completed.');
         return 'done';
     }
+
 }
 
 module.exports = OfflineBuilderServerlessPlugin;
