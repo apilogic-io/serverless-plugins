@@ -83,7 +83,7 @@ export class OfflineBuilderServerlessPlugin implements ServerlessPlugin {
             const js = fn.handler.split('.')[0];
             const functionHandler = path.join(WORK_FOLDER, js + ".js");
             build({
-                entryPoints: [path.join(fnPath)],
+                entryPoints: [path.join(fnPath, js + ".ts")],
                 bundle: true,
                 platform: 'node',
                 outfile: functionHandler
