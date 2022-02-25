@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.168",
+    "esbuild-node-externals": "^1.4.1",
     "rimraf": "^3.0.2"
   },
   "version": "1.0.0",
