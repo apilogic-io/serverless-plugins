@@ -5,5 +5,5 @@
     "packages/serverless-appsync-java-simulator",
     "packages/serverless-offline-builder"
   ],
-  "version": "1.0.48"
+  "version": "1.0.49"
 }
