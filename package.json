@@ -7,7 +7,6 @@
   ],
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "publish": "lerna publish --exact",
     "lint": "eslint **/*.ts"
   },
   "dependencies": {
