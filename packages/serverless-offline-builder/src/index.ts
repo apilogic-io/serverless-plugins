@@ -1,6 +1,7 @@
 import { build } from 'esbuild';
 import { nodeExternalsPlugin } from 'esbuild-node-externals';
 import * as fs from 'fs-extra';
+import { merge } from 'lodash';
 import * as path from 'path';
 import * as Serverless from 'serverless';
 import * as ServerlessPlugin from 'serverless/classes/Plugin';
@@ -78,26 +79,30 @@ export class OfflineBuilderServerlessPlugin implements ServerlessPlugin {
 
   async bundle(): Promise<string> {
     fs.mkdirpSync(this.buildDirPath);
+    const defaultEsbuildConfig = {
+      bundle: true,
+      platform: 'node',
+      sourcemap: true,
+      plugins: [nodeExternalsPlugin({})],
+      watch: {
+        onRebuild(error, result) {
+          if (error) console.error('watch build failed:', error);
+          else console.log('watch build succeeded:', result);
+        },
+      },
+    };
+    let esbuildConfig = this.serverless.service.custom.esbuild;
+    if (esbuildConfig) {
+      esbuildConfig = merge(defaultEsbuildConfig, esbuildConfig);
+    }
+
     for (const [functionAlias, fn] of Object.entries(this.functions)) {
       const selfPath =
         fn.environment === undefined || fn.environment.selfPath === undefined ? '' : fn.environment.selfPath;
       const fnPath = path.join(this.serviceDirPath, selfPath);
       const js = fn.handler.split('.')[0];
       const functionHandler = path.join(WORK_FOLDER, js + '.js');
-      build({
-        entryPoints: [path.join(fnPath, js + '.ts')],
-        bundle: true,
-        platform: 'node',
-        outfile: functionHandler,
-        sourcemap: true,
-        plugins: [nodeExternalsPlugin({})],
-        watch: {
-          onRebuild(error, result) {
-            if (error) console.error('watch build failed:', error);
-            else console.log('watch build succeeded:', result);
-          },
-        },
-      });
+      await build(merge(esbuildConfig, { entryPoints: [path.join(fnPath, js + '.ts')], outfile: functionHandler }));
       fn.handler = path.join(WORK_FOLDER, fn.handler);
       console.log(functionAlias, fn);
     }
