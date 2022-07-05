@@ -1,6 +1,6 @@
 {
   "name": "appsync-mappings",
-  "version": "0.0.0",
+  "version": "1.0.52",
   "description": "A blank schematics",
   "scripts": {
     "build:watch": "tsc -p tsconfig.json --watch",
