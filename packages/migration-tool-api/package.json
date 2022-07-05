@@ -37,8 +37,7 @@
   },
   "dependencies": {
     "@opensearch-project/opensearch": "2.0.0",
-    "aws-sdk": "^2.828.0",
-    "http-aws-es": "^6.0.0"
+    "aws-sdk": "^2.828.0"
   },
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,5 @@
 import { Client, ClientOptions } from '@opensearch-project/opensearch';
 import * as fs from 'fs';
-import { httpAWSESClass } from 'http-aws-es';
 import { DataApiClientModule } from '../DataApiClientModule';
 import { ApiClient } from './ApiClient';
 import ClientConfig = DataApiClientModule.ClientConfig;
@@ -45,11 +44,7 @@ export class ESClient implements ApiClient {
       },
     });
 
-    // don't sign the request in offline mode
-    if (!devMode) {
-      config.connectionClass = httpAWSESClass;
-    }
-    return config;
+    return config as ClientOptions;
   }
 
   load(payload): Promise<undefined> {
