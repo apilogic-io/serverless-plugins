@@ -5,13 +5,6 @@
     "packages/*",
     "playgrounds/*"
   ],
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.14.0",
-    "@typescript-eslint/parser": "^4.14.0",
-    "eslint": "^7.18.0",
-    "lerna": "^3.22.1",
-    "typescript": "^4.1.3"
-  },
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "publish": "lerna publish --exact",
@@ -19,8 +12,18 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.168",
+    "esbuild": "^0.14.48",
     "esbuild-node-externals": "^1.4.1",
     "rimraf": "^3.0.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.30.5",
+    "@typescript-eslint/parser": "^5.30.5",
+    "eslint": "^8.19.0",
+    "lerna": "^5.1.6",
+    "nx": "^14.4.1",
+    "prettier": "^2.7.1",
+    "typescript": "^4.7.4"
   },
   "version": "1.0.0",
   "description": "Serverless plugins",
