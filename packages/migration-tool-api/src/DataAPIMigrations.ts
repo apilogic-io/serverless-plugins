@@ -1,8 +1,8 @@
-import {DataApiClientModule} from './DataApiClientModule';
-import {Migration} from './Migration';
-import {TypeScriptCompiler} from './TypeScriptCompiler';
 import * as path from 'path';
-import {Compiler} from "./Compiler";
+import { Compiler } from './Compiler';
+import { DataApiClientModule } from './DataApiClientModule';
+import { Migration } from './Migration';
+import { TypeScriptCompiler } from './TypeScriptCompiler';
 
 export interface DataAPIMigrationsConfig {
   cwd?: string;
@@ -20,51 +20,45 @@ export class ApiLogicDataMigration {
   public readonly migrationsPath: string;
   protected buildPath: string;
 
-  constructor({
-                cwd,
-                migrationsFolder,
-                dataAPI,
-                migrationAPI
-  }: DataAPIMigrationsConfig) {
+  constructor({ cwd, migrationsFolder, dataAPI, migrationAPI }: DataAPIMigrationsConfig) {
     this.cwd = cwd || process.cwd();
     this.dataAPI = dataAPI;
     this.migrationAPI = migrationAPI;
     this.migrationsPath = path.join(this.cwd, migrationsFolder);
-    this.buildPath = path.join(this.cwd, migrationsFolder, '.migrations_build')
+    this.buildPath = path.join(this.cwd, migrationsFolder, '.migrations_build');
   }
 
-  public async getAppliedMigrationIds (): Promise<string[]> {
+  public async getAppliedMigrationIds(): Promise<string[]> {
     const result = await this.migrationAPI.fetchMigrations();
-    return result.items.map(it => it.migration_id);
+    return result.items.map((it) => it.migration_id);
   }
 
-  public async applyMigrations (): Promise<string[]> {
+  public async applyMigrations(): Promise<string[]> {
     const [migrations, compiler] = await this.bootstrap();
     const migrationsToRun = migrations.filter((migration) => !migration.isApplied);
     try {
-      for (let i = 0; i < migrationsToRun.length; i ++) {
+      for (let i = 0; i < migrationsToRun.length; i++) {
         // this.log(`Applying ${migrationsToRun[i].id} - ${migrationsToRun[i].name}`)
-        await migrationsToRun[i].apply()
+        await migrationsToRun[i].apply();
       }
-      return migrationsToRun.map((migration) => migration.id)
+      return migrationsToRun.map((migration) => migration.id);
     } finally {
-      await compiler.cleanup()
+      await compiler.cleanup();
     }
   }
 
-  private async bootstrap (): Promise<[Migration[], Compiler]> {
+  private async bootstrap(): Promise<[Migration[], Compiler]> {
     const compiler = new TypeScriptCompiler({
       cwd: this.cwd,
       migrationsPath: this.migrationsPath,
-      buildPath: this.buildPath
+      buildPath: this.buildPath,
     });
     const appliedMigrationIds = await this.getAppliedMigrationIds();
     let files = await compiler.compile();
-    if(files === undefined) {
+    if (files === undefined) {
       files = [];
     }
-    const migrations =
-      files
+    const migrations = files
       .map((file) => {
         const fileName = path.basename(file, '.js');
         const match = fileName.match(/^(?<id>__V\d*__)(?<name>\w+)/);
@@ -78,16 +72,18 @@ export class ApiLogicDataMigration {
       })
       .filter((data) => data !== null)
       .sort((a, b) => parseInt(a.id) - parseInt(b.id))
-      .map(({ id, ...data }) => new Migration({
-        id,
-        ...data,
-        isApplied: appliedMigrationIds.includes(id),
-        dataAPI: this.dataAPI.apiClient,
-        migrationAPI: this.migrationAPI.apiClient
-      }));
-    return [migrations, compiler]
+      .map(
+        ({ id, ...data }) =>
+          new Migration({
+            id,
+            ...data,
+            isApplied: appliedMigrationIds.includes(id),
+            dataAPI: this.dataAPI.apiClient,
+            migrationAPI: this.migrationAPI.apiClient,
+          })
+      );
+    return [migrations, compiler];
   }
-
 }
-export default ApiLogicDataMigration
 
+export default ApiLogicDataMigration;

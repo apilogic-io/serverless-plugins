@@ -1,5 +1,4 @@
 export abstract class Config {
-    config: any;
-    options: unknown;
-
+  config: any;
+  options: unknown;
 }

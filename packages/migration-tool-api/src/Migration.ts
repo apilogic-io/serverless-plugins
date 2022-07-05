@@ -1,5 +1,5 @@
-import {ApiClient} from './clients/ApiClient';
-import {v4 as uuidv4} from 'uuid';
+import { ApiClient } from './clients/ApiClient';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface MigrationsConfig {
   id?: string;
@@ -10,20 +10,13 @@ export interface MigrationsConfig {
 }
 
 export class Migration {
-
   public readonly id: string;
   public readonly isApplied: boolean;
   public readonly file: string;
   public readonly dataAPI: ApiClient;
   public readonly migrationAPI: ApiClient;
 
-  constructor({
-                id,
-                file,
-                isApplied,
-                dataAPI,
-                migrationAPI
-              } :MigrationsConfig) {
+  constructor({ id, file, isApplied, dataAPI, migrationAPI }: MigrationsConfig) {
     this.id = id;
     this.file = file;
     this.isApplied = isApplied;
@@ -33,11 +26,11 @@ export class Migration {
 
   public async apply(): Promise<void> {
     if (this.isApplied) {
-      return
+      return;
     }
     const that = this.file;
     const workingDir = this.file.match(/(.*)[/\\]/)[1] || '';
-    const {up} = await import(that);
+    const { up } = await import(that);
     await up(this.dataAPI, workingDir);
     await this.migrationAPI.load(this.insertPayload());
   }
@@ -47,12 +40,11 @@ export class Migration {
       version: '2017-02-28',
       operation: 'PutItem',
       key: {
-        id: {S: uuidv4()}
+        id: { S: uuidv4() },
       },
       attributeValues: {
-        migration_id: {S: this.id}
-      }
-    }
+        migration_id: { S: this.id },
+      },
+    };
   }
-
 }

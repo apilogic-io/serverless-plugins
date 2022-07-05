@@ -1,5 +1,3 @@
-import {Config} from "./Config";
+import { Config } from './Config';
 
-export class EsConfig extends Config {
-
-}
+export class EsConfig extends Config {}
