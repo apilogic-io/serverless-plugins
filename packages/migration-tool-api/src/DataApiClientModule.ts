@@ -1,10 +1,9 @@
-import {ESClient} from "./clients/ESClient";
-import {Config} from "./clients/config/Config";
-import {ApiClient} from "./clients/ApiClient";
-import {DynamoClient} from "./clients/dynamo/DynamoClient";
+import { ApiClient } from './clients/ApiClient';
+import { Config } from './clients/config/Config';
+import { DynamoClient } from './clients/dynamo/DynamoClient';
+import { ESClient } from './clients/ESClient';
 
 export namespace DataApiClientModule {
-
   export interface ClientConfig {
     clientType?: string;
     config?: Config;
@@ -24,23 +23,20 @@ export namespace DataApiClientModule {
         case 'AMAZON_ELASTICSEARCH':
           return new ESClient(clientConfig);
         case 'AMAZON_DYNAMODB':
-          return new DynamoClient({config: clientConfig, options: ''});
+          return new DynamoClient({ config: clientConfig, options: '' });
       }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public async fetchMigrations(): Promise<any> {
       return this.apiClient.load(DataApiClientModule.DataApiClient.getFetchPayLoad());
-
     }
 
     private static getFetchPayLoad() {
       return {
         version: '2017-02-28',
-        operation: 'Scan'
-      }
+        operation: 'Scan',
+      };
     }
-
   }
 }
-

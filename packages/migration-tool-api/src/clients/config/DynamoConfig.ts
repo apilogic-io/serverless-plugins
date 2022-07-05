@@ -1,8 +1,8 @@
-import {DataApiClientModule} from "../../DataApiClientModule";
+import { DataApiClientModule } from '../../DataApiClientModule';
+import { Config } from './Config';
 import ClientConfig = DataApiClientModule.ClientConfig;
-import {Config} from "./Config";
 
 export class DynamoConfig implements ClientConfig {
-    config?: Config;
-    options: unknown;
+  config?: Config;
+  options: unknown;
 }
