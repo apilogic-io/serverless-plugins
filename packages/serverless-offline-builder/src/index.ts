@@ -89,7 +89,14 @@ export class OfflineBuilderServerlessPlugin implements ServerlessPlugin {
         bundle: true,
         platform: 'node',
         outfile: functionHandler,
+        sourcemap: true,
         plugins: [nodeExternalsPlugin({})],
+        watch: {
+          onRebuild(error, result) {
+            if (error) console.error('watch build failed:', error);
+            else console.log('watch build succeeded:', result);
+          },
+        },
       });
       fn.handler = path.join(WORK_FOLDER, fn.handler);
       console.log(functionAlias, fn);
