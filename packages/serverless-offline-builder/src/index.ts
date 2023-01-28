@@ -1,4 +1,5 @@
 import { build } from 'esbuild';
+import {vtlPlugin} from "./vtl_plugin";
 import { nodeExternalsPlugin } from 'esbuild-node-externals';
 import * as fs from 'fs-extra';
 import { merge } from 'lodash';
@@ -83,7 +84,7 @@ export class OfflineBuilderServerlessPlugin implements ServerlessPlugin {
       bundle: true,
       platform: 'node',
       sourcemap: true,
-      plugins: [nodeExternalsPlugin({})],
+      plugins: [nodeExternalsPlugin({}), vtlPlugin],
       watch: {
         onRebuild(error, result) {
           if (error) console.error('watch build failed:', error);
