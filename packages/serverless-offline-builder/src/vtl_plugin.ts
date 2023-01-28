@@ -18,8 +18,10 @@ export const vtlPlugin = {
     // they point to a JSON file containing the environment variables.
     build.onLoad({ filter: /.*/, namespace: 'vtl' }, (args) => {
       const result = fs.readFileSync(args.path, 'utf-8')
+      const vtlContent = {"vtl": result}
+      const stringed = JSON.stringify(vtlContent)
       return {
-        contents: result,
+        contents: stringed,
         loader: 'json'
       }
     });
