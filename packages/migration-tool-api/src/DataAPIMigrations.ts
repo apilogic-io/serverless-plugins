@@ -61,18 +61,18 @@ export class ApiLogicDataMigration {
     const migrations = files
       .map((file) => {
         const fileName = path.basename(file, '.js');
-        const match = fileName.match(/^(?<vid>__V(?<id>\d*)__)(?<name>\w+)/);
+        const match = fileName.match(/^(?<id>__V(?<vid>\d*)__)(?<name>\w+)/);
         if (!match || !match.groups || !match.groups.id || !match.groups.vid || !match.groups.name) {
           return null;
         } else {
           const id = match.groups.id;
-          const vid = match.groups.vid;
+          const vid = parseInt(match.groups.vid);
           const name = match.groups.name;
           return { id, vid, name, file };
         }
       })
       .filter((data) => data !== null)
-      .sort((a, b) => parseInt(a.id) - parseInt(b.id))
+      .sort((a, b) => a.id - b.id)
       .map(
         ({ id, ...data }) =>
           new Migration({

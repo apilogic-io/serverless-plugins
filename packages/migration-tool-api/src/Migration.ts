@@ -46,7 +46,7 @@ export class Migration {
         id: { S: uuidv4() },
       },
       attributeValues: {
-        migration_id: { S: this.vid },
+        migration_id: { S: this.id },
       },
     };
   }
