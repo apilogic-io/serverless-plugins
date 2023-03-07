@@ -38,7 +38,6 @@ export class ApiLogicDataMigration {
     const migrationsToRun = migrations.filter((migration) => !migration.isApplied);
     try {
       for (let i = 0; i < migrationsToRun.length; i++) {
-        // this.log(`Applying ${migrationsToRun[i].id} - ${migrationsToRun[i].name}`)
         await migrationsToRun[i].apply();
       }
       return migrationsToRun.map((migration) => migration.id);
