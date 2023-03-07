@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export interface MigrationsConfig {
   id?: string;
+  vid?: string;
   file?: string;
   isApplied?: boolean;
   dataAPI: ApiClient;
@@ -11,13 +12,15 @@ export interface MigrationsConfig {
 
 export class Migration {
   public readonly id: string;
+  public readonly vid: string;
   public readonly isApplied: boolean;
   public readonly file: string;
   public readonly dataAPI: ApiClient;
   public readonly migrationAPI: ApiClient;
 
-  constructor({ id, file, isApplied, dataAPI, migrationAPI }: MigrationsConfig) {
+  constructor({ id, vid, file, isApplied, dataAPI, migrationAPI }: MigrationsConfig) {
     this.id = id;
+    this.vid = vid;
     this.file = file;
     this.isApplied = isApplied;
     this.dataAPI = dataAPI;
@@ -43,7 +46,7 @@ export class Migration {
         id: { S: uuidv4() },
       },
       attributeValues: {
-        migration_id: { S: this.id },
+        migration_id: { S: this.vid },
       },
     };
   }
