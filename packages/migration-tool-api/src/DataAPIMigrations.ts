@@ -71,7 +71,7 @@ export class ApiLogicDataMigration {
         }
       })
       .filter((data) => data !== null)
-      .sort((a, b) => a.id - b.id)
+      .sort((a, b) => a.vid - b.vid)
       .map(
         ({ id, ...data }) =>
           new Migration({

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export interface MigrationsConfig {
   id?: string;
-  vid?: string;
+  vid?: number;
   file?: string;
   isApplied?: boolean;
   dataAPI: ApiClient;
@@ -12,7 +12,7 @@ export interface MigrationsConfig {
 
 export class Migration {
   public readonly id: string;
-  public readonly vid: string;
+  public readonly vid: number;
   public readonly isApplied: boolean;
   public readonly file: string;
   public readonly dataAPI: ApiClient;
