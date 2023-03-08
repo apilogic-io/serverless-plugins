@@ -1,6 +1,13 @@
 import { ClientOptions } from '@opensearch-project/opensearch';
-import { Client } from '@opensearch-project/opensearch/api/new';
+import { Client } from '@opensearch-project/opensearch';
+import {
+  IndicesCreate,
+  IndicesDeleteAlias,
+  IndicesPutAlias,
+  IndicesPutMapping,
+} from '@opensearch-project/opensearch/api/requestParams';
 import { IndicesCreateRequest } from '@opensearch-project/opensearch/api/types';
+import { TransportRequestPromise } from '@opensearch-project/opensearch/lib/Transport';
 import * as fs from 'fs';
 import { DataApiClientModule } from '../DataApiClientModule';
 import { ApiClient } from './ApiClient';
@@ -42,8 +49,8 @@ export class ESClient implements ApiClient {
       node: host,
       auth: {
         username: options.url.username,
-        password: options.url.password
-      }
+        password: options.url.password,
+      },
     });
 
     return config as ClientOptions;
@@ -65,16 +72,40 @@ export class ESClient implements ApiClient {
     console.log('EXISTS ' + indexExist);
     if (!indexExist.body) {
       console.log('Creating index:' + index);
-      const template: IndicesCreateRequest = { index };
-      template.body.settings = JSON.parse(fs.readFileSync(workingDir + settingsPath, 'utf8'));
+      const requestParams: IndicesCreate = { index };
+      requestParams.body = { settings: JSON.parse(fs.readFileSync(workingDir + settingsPath, 'utf8')) };
       if (alias) {
-        template.body.aliases = {};
-        template.body.aliases[alias] = {};
+        requestParams.body.aliases = {};
+        requestParams.body.aliases[alias] = {};
       }
-      console.log('Create index params: ', template);
-      await this._client.indices.create(template);
+      console.log('Create index params: ', requestParams);
+      await this._client.indices.create(requestParams);
     }
     return this.mappingsPayload(index, workingDir, mappingsPath);
+  }
+
+  public async upsertIndexAlias(aliasName: string, newIndexName: string, oldIndexName?: string): Promise<unknown> {
+    console.log(`Moving alias ${aliasName} from index ${oldIndexName} to index ${newIndexName}`);
+    if (oldIndexName) {
+      try {
+        const requestParams: IndicesDeleteAlias = {
+          index: oldIndexName,
+          name: aliasName,
+        };
+        console.log(`Delete alias ${aliasName} from index ${oldIndexName}`);
+        await this._client.indices.delete_alias(requestParams);
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+
+    try {
+      const requestParams: IndicesPutAlias = { index: newIndexName, name: aliasName };
+      console.log(`Adding alias ${aliasName} to index ${newIndexName}`);
+      return this._client.indices.putAlias(requestParams);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   public async updateIndex(index: string, workingDir: string, mappingsPath: string): Promise<unknown> {
@@ -87,13 +118,10 @@ export class ESClient implements ApiClient {
 
   private async mappingsPayload(index: string, workingDirectory: string, mappingsPath: string) {
     const properties = JSON.parse(fs.readFileSync(workingDirectory + mappingsPath, 'utf-8'));
-    const body = {
-      properties
-    };
-    const template = {
+    const requestParams: IndicesPutMapping = {
       index,
-      body
+      body: { properties },
     };
-    return this._client.indices.putMapping(template);
+    return this._client.indices.putMapping(requestParams);
   }
 }
