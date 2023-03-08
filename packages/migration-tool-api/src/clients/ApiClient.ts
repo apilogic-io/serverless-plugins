@@ -1,4 +1,4 @@
-import { Client } from '@opensearch-project/opensearch';
+import { Client } from '@opensearch-project/opensearch/api/new';
 import { DynamoDB } from 'aws-sdk';
 
 export interface ApiClient {

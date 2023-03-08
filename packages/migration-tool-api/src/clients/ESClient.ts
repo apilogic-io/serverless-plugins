@@ -1,4 +1,6 @@
-import { Client, ClientOptions } from '@opensearch-project/opensearch';
+import { ClientOptions } from '@opensearch-project/opensearch';
+import { Client } from '@opensearch-project/opensearch/api/new';
+import { IndicesCreateRequest } from '@opensearch-project/opensearch/api/types';
 import * as fs from 'fs';
 import { DataApiClientModule } from '../DataApiClientModule';
 import { ApiClient } from './ApiClient';
@@ -40,8 +42,8 @@ export class ESClient implements ApiClient {
       node: host,
       auth: {
         username: options.url.username,
-        password: options.url.password,
-      },
+        password: options.url.password
+      }
     });
 
     return config as ClientOptions;
@@ -56,20 +58,20 @@ export class ESClient implements ApiClient {
     index: string,
     workingDir: string,
     settingsPath: string,
-    mappingsPath: string
+    mappingsPath: string,
+    alias?: string
   ): Promise<unknown> {
     const indexExist = await this._client.indices.exists({ index });
     console.log('EXISTS ' + indexExist);
     if (!indexExist.body) {
       console.log('Creating index:' + index);
-      const settings = JSON.parse(fs.readFileSync(workingDir + settingsPath, 'utf8'));
-      const body = {
-        settings,
-      };
-      const template = {
-        index,
-        body,
-      };
+      const template: IndicesCreateRequest = { index };
+      template.body.settings = JSON.parse(fs.readFileSync(workingDir + settingsPath, 'utf8'));
+      if (alias) {
+        template.body.aliases = {};
+        template.body.aliases[alias] = {};
+      }
+      console.log('Create index params: ', template);
       await this._client.indices.create(template);
     }
     return this.mappingsPayload(index, workingDir, mappingsPath);
@@ -80,17 +82,17 @@ export class ESClient implements ApiClient {
   }
 
   public async deleteIndex(index: string): Promise<unknown> {
-    return this._client.indices.delete({index})
+    return this._client.indices.delete({ index });
   }
 
   private async mappingsPayload(index: string, workingDirectory: string, mappingsPath: string) {
     const properties = JSON.parse(fs.readFileSync(workingDirectory + mappingsPath, 'utf-8'));
     const body = {
-      properties,
+      properties
     };
     const template = {
       index,
-      body,
+      body
     };
     return this._client.indices.putMapping(template);
   }
