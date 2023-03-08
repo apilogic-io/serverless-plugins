@@ -79,6 +79,10 @@ export class ESClient implements ApiClient {
     return this.mappingsPayload(index, workingDir, mappingsPath);
   }
 
+  public async deleteIndex(index: string): Promise<unknown> {
+    return this._client.indices.delete({index})
+  }
+
   private async mappingsPayload(index: string, workingDirectory: string, mappingsPath: string) {
     const properties = JSON.parse(fs.readFileSync(workingDirectory + mappingsPath, 'utf-8'));
     const body = {
