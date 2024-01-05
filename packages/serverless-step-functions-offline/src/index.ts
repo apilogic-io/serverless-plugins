@@ -89,6 +89,7 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
     this.detailedLog = (this.options.detailedLog || this.options.l) ?? false;
     this.event = this.options.event || this.options.e;
     this.eventFile = this.options.eventFile || this.options.ef;
+    this.lambdaEndpoint = this.options.lambdaEndpoint;
     this.functions = this.serverless.service.functions;
     this.variables = this.serverless.service.custom?.stepFunctionsOffline;
     this.cliLog = this.cli.log.info.bind(this.cli);
@@ -108,6 +109,10 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
           'exit',
         ],
         options: {
+          lambdaEndpoint: {
+            usage: 'The serverless Lambda Endpoint',
+            required: true,
+          },
           stateMachine: {
             usage: 'The stage used to execute.',
             required: true,
@@ -238,7 +243,12 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
       throw new Error('Could not find serverless manifest');
     }
 
-    const manifestFilenames = ['serverless.yaml', 'serverless.yml', 'serverless.json', 'serverless.js'];
+    const manifestFilenames = [
+      'serverless-offline.yaml',
+      'serverless-offline.yml',
+      'serverless-offline.json',
+      'serverless-offline.js',
+    ];
 
     const manifestFilename = manifestFilenames.find((name) => this.serverlessFileExists(name));
     if (!manifestFilename) {
@@ -544,14 +554,12 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
     const functionName = this.variables?.[stateName];
     let f = functionName ? this.functions[functionName] : null;
     if (f === null && Array.isArray(this.functions)) {
-      f = functionName ? this.functions.find((func) => func[functionName])[functionName] : null;
+      f = this.functions.find((func) => func[functionName] !== undefined)[functionName];
     }
     if (f === undefined || f === null) {
       this.cliLog(`Function "${stateName}" does not presented in serverless manifest`);
       throw new Error(`Function "${stateName}" does not presented in serverless manifest`);
     }
-    if (!definitionIsHandler(f)) return;
-
     return {
       name: stateName,
       f: this._invokeLambdaFn(f).bind(this),
