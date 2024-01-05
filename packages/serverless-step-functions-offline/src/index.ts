@@ -40,7 +40,7 @@ function serialize(any) {
   return JSON.parse(JSON.stringify(any));
 }
 
-export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
+export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
   private location: string;
 
   private readonly functions: Serverless['service']['functions'];
@@ -834,3 +834,5 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
     if (this.detailedLog) console.log(log);
   }
 }
+
+module.exports = StepFunctionsOfflinePlugin;
