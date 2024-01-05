@@ -553,7 +553,7 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
     process.env = Object.assign({}, this.environmentVariables);
     const functionName = this.variables?.[stateName];
     let f = functionName ? this.functions[functionName] : null;
-    if (f === null && Array.isArray(this.functions)) {
+    if ((f === undefined || f === null) && Array.isArray(this.functions)) {
       f = this.functions.find((func) => func[functionName] !== undefined)[functionName];
     }
     if (f === undefined || f === null) {
