@@ -44,5 +44,8 @@
     "typescript": "4.7.3"
   },
   "license": "MIT",
-  "gitHead": "1cd0d008a2da672ebabc66d9edd6936e6a710880"
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "520f5dfbbef28113dd990a11868dc5c533c85bae"
 }
