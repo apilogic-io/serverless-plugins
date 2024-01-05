@@ -6,7 +6,8 @@ import _ from 'lodash';
 import os from 'os';
 import path from 'path';
 import Serverless from 'serverless';
-import Plugin, { Logging } from 'serverless/classes/Plugin';
+import * as ServerlessPlugin from 'serverless/classes/Plugin';
+import { Logging } from 'serverless/classes/Plugin';
 import { v4 } from 'uuid';
 
 import enumList from './enum';
@@ -40,7 +41,7 @@ function serialize(any) {
   return JSON.parse(JSON.stringify(any));
 }
 
-export default class StepFunctionsOfflinePlugin implements Plugin {
+export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
   private location: string;
 
   private readonly functions: Serverless['service']['functions'];
@@ -71,8 +72,8 @@ export default class StepFunctionsOfflinePlugin implements Plugin {
   shouldTerminate = true;
   serverless: Serverless;
   options: Options;
-  commands: Plugin.Commands;
-  hooks: Plugin['hooks'];
+  commands: ServerlessPlugin.Commands;
+  hooks: ServerlessPlugin['hooks'];
   cli: Logging;
   stateMachine: Options['stateMachine'];
   lambdaEndpoint: Options['lambdaEndpoint'];
