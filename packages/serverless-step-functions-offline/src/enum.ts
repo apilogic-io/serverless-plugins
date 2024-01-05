@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { eq, gt, gte, lt, lte } from 'lodash';
 
 export default {
   // comparisonOperators: [
@@ -43,21 +43,21 @@ export default {
   ],
 
   convertOperator: {
-    BooleanEquals: (value: boolean, other: boolean): boolean => _.eq(value, other),
-    NumericEquals: (value: number, other: number): boolean => _.eq(value, other),
-    NumericGreaterThan: (value: number, other: number): boolean => _.gt(value, other),
-    NumericGreaterThanEquals: (value: number, other: number): boolean => _.gte(value, other),
-    NumericLessThan: (value: number, other: number): boolean => _.lt(value, other),
-    NumericLessThanEquals: (value: number, other: number): boolean => _.lte(value, other),
-    StringEquals: (value: string, other: string): boolean => _.eq(value, other),
-    StringGreaterThan: (value: string, other: string): boolean => _.gt(value, other),
-    StringGreaterThanEquals: (value: string, other: string): boolean => _.gte(value, other),
-    StringLessThan: (value: string, other: string): boolean => _.lt(value, other),
-    StringLessThanEquals: (value: string, other: string): boolean => _.lte(value, other),
-    TimestampEquals: (value: unknown, other: unknown): boolean => _.eq(value, other),
-    TimestampGreaterThan: (value: unknown, other: unknown): boolean => _.gt(value, other),
-    TimestampGreaterThanEquals: (value: unknown, other: unknown): boolean => _.gte(value, other),
-    TimestampLessThan: (value: unknown, other: unknown): boolean => _.lt(value, other),
-    TimestampLessThanEquals: (value: unknown, other: unknown): boolean => _.lte(value, other),
+    BooleanEquals: (value: boolean, other: boolean): boolean => eq(value, other),
+    NumericEquals: (value: number, other: number): boolean => eq(value, other),
+    NumericGreaterThan: (value: number, other: number): boolean => gt(value, other),
+    NumericGreaterThanEquals: (value: number, other: number): boolean => gte(value, other),
+    NumericLessThan: (value: number, other: number): boolean => lt(value, other),
+    NumericLessThanEquals: (value: number, other: number): boolean => lte(value, other),
+    StringEquals: (value: string, other: string): boolean => eq(value, other),
+    StringGreaterThan: (value: string, other: string): boolean => gt(value, other),
+    StringGreaterThanEquals: (value: string, other: string): boolean => gte(value, other),
+    StringLessThan: (value: string, other: string): boolean => lt(value, other),
+    StringLessThanEquals: (value: string, other: string): boolean => lte(value, other),
+    TimestampEquals: (value: unknown, other: unknown): boolean => eq(value, other),
+    TimestampGreaterThan: (value: unknown, other: unknown): boolean => gt(value, other),
+    TimestampGreaterThanEquals: (value: unknown, other: unknown): boolean => gte(value, other),
+    TimestampLessThan: (value: unknown, other: unknown): boolean => lt(value, other),
+    TimestampLessThanEquals: (value: unknown, other: unknown): boolean => lte(value, other),
   },
 };

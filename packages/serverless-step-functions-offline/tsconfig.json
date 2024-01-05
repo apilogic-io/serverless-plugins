@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
-    "esModuleInterop": true,
     "moduleResolution": "Node",
     "target": "ES6",
     "sourceMap": true,

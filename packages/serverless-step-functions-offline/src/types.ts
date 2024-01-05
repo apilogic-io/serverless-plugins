@@ -1,7 +1,5 @@
 import { Choice, Map, Parallel, State, StateMachine, Task, Wait } from 'asl-types';
-import Serverless from 'serverless';
-import PluginManager from 'serverless/classes/PluginManager';
-import Service from 'serverless/classes/Service';
+import * as Serverless from 'serverless';
 
 // from https://stackoverflow.com/a/49725198/3296811
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
@@ -113,23 +111,3 @@ export class SLSError extends Error {
     this.statusCode = statusCode;
   }
 }
-
-export type ServerlessWithError = Serverless & {
-  classes: {
-    Error: typeof SLSError;
-  };
-  pluginManager: PluginManager & {
-    cliOptions: {
-      stage?: string;
-      region?: string;
-    };
-  };
-  service: Service & {
-    stepFunctions?: {
-      activities?: [];
-      stateMachines?: {
-        [key: string]: StateMachineBase;
-      };
-    };
-  };
-};

@@ -1,11 +1,11 @@
 import { Choice, Fail, Map, Parallel, Pass, State, StateMachine, Succeed, Task, Wait } from 'asl-types';
 import { spawn } from 'child_process';
-import dayjs from 'dayjs';
-import fs from 'fs';
-import _ from 'lodash';
-import os from 'os';
-import path from 'path';
-import Serverless from 'serverless';
+import * as dayjs from 'dayjs';
+import * as fs from 'fs';
+import { has, extend, clone, get, set, pick, forEach, isEmpty, isNil, omit } from 'lodash';
+import * as os from 'os';
+import * as path from 'path';
+import * as Serverless from 'serverless';
 import * as ServerlessPlugin from 'serverless/classes/Plugin';
 import { Logging } from 'serverless/classes/Plugin';
 import { v4 } from 'uuid';
@@ -26,7 +26,6 @@ import {
   Maybe,
   notEmpty,
   Options,
-  ServerlessWithError,
   stateIsChoiceConditional,
   StateMachineBase,
   StateValueReturn,
@@ -170,7 +169,7 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
   }
 
   _checkVariableInYML(): void {
-    if (!_.has(this.serverless.service, 'custom.stepFunctionsOffline')) {
+    if (!has(this.serverless.service, 'custom.stepFunctionsOffline')) {
       throw new Error('Please add ENV_VARIABLES to section "custom"');
     }
     return;
@@ -201,7 +200,7 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
   loadEnvVariables(): void {
     // this.environment = this.serverless.service.provider.environment;
     process.env.STEP_IS_OFFLINE = 'true';
-    process.env = _.extend(process.env, this.environment);
+    process.env = extend(process.env, this.environment);
     this.environmentVariables = Object.assign({}, process.env); //store global env variables;
     return;
   }
@@ -233,7 +232,7 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
     return this.serverless.utils.fileExistsSync(fullPath);
   }
 
-  async getRawConfig(): Promise<ServerlessWithError['service']> {
+  async getRawConfig(): Promise<Serverless['service']> {
     const serverlessPath = this.serverless.config.servicePath;
     if (!serverlessPath) {
       throw new Error('Could not find serverless manifest');
@@ -248,7 +247,7 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
       );
     }
     const manifestPath = path.join(serverlessPath, manifestFilename);
-    let fromFile: ServerlessWithError['service'];
+    let fromFile: Serverless['service'];
     if (/\.json|\.js$/.test(manifestPath)) {
       try {
         fromFile = await import(manifestPath);
@@ -258,19 +257,19 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
         throw new Error(`Unable to import manifest at: ${manifestPath}`);
       }
     }
-    return this.parseYaml<ServerlessWithError['service']>(manifestPath);
+    return this.parseYaml<Serverless['service']>(manifestPath);
   }
 
   parseConfig(): Promise<void> {
     return this.getRawConfig().then((serverlessFileParam) => {
       this.serverless.service['stepFunctions'] = {};
       this.serverless.service['stepFunctions']['stateMachines'] =
-        serverlessFileParam.stepFunctions && serverlessFileParam.stepFunctions.stateMachines
-          ? serverlessFileParam.stepFunctions.stateMachines
+        serverlessFileParam['stepFunctions'] && serverlessFileParam['stepFunctions']?.stateMachines
+          ? serverlessFileParam['stepFunctions']?.stateMachines
           : {};
       this.serverless.service['stepFunctions']['activities'] =
-        serverlessFileParam.stepFunctions && serverlessFileParam.stepFunctions.activities
-          ? serverlessFileParam.stepFunctions.activities
+        serverlessFileParam['stepFunctions'] && serverlessFileParam['stepFunctions']?.activities
+          ? serverlessFileParam['stepFunctions']?.activities
           : [];
 
       if (!this.serverless.pluginManager.cliOptions['stage']) {
@@ -427,8 +426,8 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
   _handleMap(currentState: Map, stateName: string): StateValueReturn {
     return {
       f: (event: Event): Promise<void | AsyncCallback> => {
-        const items = _.get(event, currentState.ItemsPath?.replace(/^\$\./, '') ?? '', []);
-        const mapItems: any[] = _.clone(items);
+        const items = get(event, currentState.ItemsPath?.replace(/^\$\./, '') ?? '', []);
+        const mapItems: any[] = clone(items);
         this.mapResults = [];
         if (mapItems.length === 0) {
           this.cliLog(`State ${stateName} is being called with no items, skipping...`);
@@ -448,7 +447,7 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
               }
 
               if (/^\$\./.test(value)) {
-                return _.get(event, value.replace(/^\$\./, ''));
+                return get(event, value.replace(/^\$\./, ''));
               }
             };
 
@@ -471,7 +470,7 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
         return executeMapperPromise.then(async () => {
           const mappedResult = await Promise.all(this.mapResults);
           if (currentState.ResultPath) {
-            _.set(event, currentState.ResultPath.replace(/\$\./, ''), serialize(mappedResult));
+            set(event, currentState.ResultPath.replace(/\$\./, ''), serialize(mappedResult));
           }
 
           this.mapResults = [];
@@ -486,8 +485,8 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
     };
   }
 
-  _invokeLambdaFn(func: Serverless.FunctionDefinitionHandler) {
-    const env = _.extend(process.env, func.environment);
+  _invokeLambdaFn(func: Serverless.FunctionDefinitionHandler | Serverless.FunctionDefinitionImage) {
+    const env = extend(process.env, func.environment);
     return async (event): Promise<AsyncCallback> => {
       return (_, _context) => {
         const processId = v4();
@@ -561,7 +560,7 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
 
   _handleParallel(currentState: Parallel): StateValueReturn {
     this.eventParallelResult = [];
-    _.forEach(currentState.Branches, (branch) => {
+    forEach(currentState.Branches, (branch) => {
       this.parallelBranch = branch;
       return this.eventForParallelExecution
         ? this.process(branch.States[branch.StartAt], branch.StartAt, this.eventForParallelExecution)
@@ -585,9 +584,9 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
     const choiceConditional: ChoiceConditional = {
       choice: [],
     };
-    _.forEach(currentState.Choices, (choice) => {
+    forEach(currentState.Choices, (choice) => {
       const variable = choice.Variable?.split('$.')[1];
-      const condition = _.pick(choice, enumList.supportedComparisonOperator);
+      const condition = pick(choice, enumList.supportedComparisonOperator);
       if (!condition) {
         this.cliLog(`Sorry! At this moment we don't support operator '${choice}'`);
         process.exit(1);
@@ -664,7 +663,7 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
       if (currentState.Cause) obj.Cause = currentState.Cause;
       if (currentState.Error) obj.Error = currentState.Error;
       this.cliLog('Fail');
-      if (!_.isEmpty(obj)) {
+      if (!isEmpty(obj)) {
         this.cliLog(JSON.stringify(obj));
       }
       return Promise.resolve('Fail');
@@ -694,10 +693,10 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
     if (!data?.choice) return;
 
     //look through choice and find appropriate
-    _.forEach(data.choice, (choice) => {
+    forEach(data.choice, (choice) => {
       //check if result from previous function has of value which described in Choice
-      const functionResultValue = _.get(result, choice.variable);
-      if (!_.isNil(functionResultValue)) {
+      const functionResultValue = get(result, choice.variable);
+      if (!isNil(functionResultValue)) {
         //check condition
         const isConditionTrue = choice.checkFunction(functionResultValue, choice.compareWithValue);
         if (isConditionTrue && choice.choiceFunction) {
@@ -718,7 +717,7 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
       timeDiff;
     const currentTime = dayjs();
     const waitListKeys = ['Seconds', 'Timestamp', 'TimestampPath', 'SecondsPath'];
-    const waitField = _.omit(currentState, 'Type', 'Next', 'Result');
+    const waitField = omit(currentState, 'Type', 'Next', 'Result');
     const waitKey = Object.keys(waitField)[0];
     if (!waitListKeys.includes(waitKey)) {
       const error = `Plugin does not support wait operator "${waitKey}"`;
@@ -811,7 +810,7 @@ export default class StepFunctionsOfflinePlugin implements ServerlessPlugin {
       }
       let nextEvent = result;
       if (isType('Task')<Task>(this.currentState) && this.currentState.ResultPath) {
-        _.set(originalEvent, this.currentState.ResultPath.replace(/\$\./, ''), serialize(result));
+        set(originalEvent, this.currentState.ResultPath.replace(/\$\./, ''), serialize(result));
         nextEvent = originalEvent;
       }
 
