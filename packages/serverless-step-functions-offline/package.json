@@ -1,7 +1,7 @@
 {
-  "name": "@apilogic/serverless-offline-builder",
+  "name": "@apilogic/serverless-step-functions-offline",
   "version": "1.1.6",
-  "description": "Serverless offline builder",
+  "description": "Serverlesss plugin to support step function offline",
   "repository": {
     "type": "git",
     "url": "https://github.com/apilogic-io/serverless-plugins.git",
@@ -26,21 +26,22 @@
     "compile": "tsc -b tsconfig.build.json --force --verbose",
     "prepare": "npm run build"
   },
-  "author": "Vitalie Robu",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/serverless": "3.12.7",
-    "serverless": "^3.23.0",
-    "ts-node": "10.8.1"
-  },
   "dependencies": {
-    "chalk": "^4.1.0",
+    "dayjs": "^1.11.5",
+    "lodash": "^4.17.15",
+    "uuid": "^9.0.0",
     "esbuild": "^0.14.48",
-    "esbuild-node-externals": "^1.4.1",
-    "lodash": "^4.17.21"
+    "esbuild-node-externals": "^1.4.1"
   },
-  "publishConfig": {
-    "access": "public"
+  "devDependencies": {
+    "@types/node": "17.0.40",
+    "@types/serverless": "3.12.7",
+    "asl-types": "^1.2.1",
+    "pre-commit": "^1.1.3",
+    "prettier": "2.6.2",
+    "serverless": "^3.23.0",
+    "ts-node": "10.8.1",
+    "typescript": "4.7.3"
   },
-  "gitHead": "ec6371c80eeb2ea1c40a774ea5e1eb756f486b26"
+  "license": "MIT"
 }
