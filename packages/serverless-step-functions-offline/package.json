@@ -1,6 +1,6 @@
 {
   "name": "@apilogic/serverless-step-functions-offline",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Serverlesss plugin to support step function offline",
   "repository": {
     "type": "git",
