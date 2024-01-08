@@ -285,7 +285,11 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
         serverlessFileParam['stepFunctions'] && serverlessFileParam['stepFunctions']?.activities
           ? serverlessFileParam['stepFunctions']?.activities
           : [];
-
+      if (isEmpty(this.serverless.service['stepFunctions']['stateMachines'])) {
+        this.serverless.service['stepFunctions']['stateMachines'] = this.getStepFunctionsConfig(
+          serverlessFileParam['stepFunctions']
+        );
+      }
       if (!this.serverless.pluginManager.cliOptions['stage']) {
         this.serverless.pluginManager.cliOptions['stage'] =
           this.options.stage || (this.serverless.service.provider && this.serverless.service.provider.stage) || 'dev';
@@ -303,6 +307,22 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
       }
       return Promise.resolve();
     });
+  }
+
+  getStepFunctionsConfig(filePathString: string): any {
+    const filename = this._extractFilePath(filePathString);
+    return this.parseYaml(filename);
+  }
+
+  _extractFilePath(filePathString: string): string | null {
+    const regex = /\$\{file\('([^']+)'\)\}/;
+    const match = filePathString.match(regex);
+
+    if (match && match[1]) {
+      return match[1];
+    } else {
+      return null;
+    }
   }
 
   getStateMachine(stateMachineName: string): StateMachineBase {
