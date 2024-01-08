@@ -190,7 +190,11 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
 
   async loadEventFile(): Promise<void> {
     if (!this.eventFile) {
-      this.loadedEventFile = this.event;
+      if (Array.isArray(this.event)) {
+        this.loadedEventFile = JSON.parse(this.event[0]);
+      } else {
+        this.loadedEventFile = JSON.parse(this.event);
+      }
       return Promise.resolve();
     }
     try {

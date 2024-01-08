@@ -97,7 +97,7 @@ export type Options = {
 } & RequireAtLeastOne<
   {
     eventFile?: Maybe<string>;
-    event?: Maybe<Event>;
+    event?: Maybe<string>;
     e?: Options['event'];
     ef?: Options['eventFile'];
   },
