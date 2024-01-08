@@ -286,9 +286,9 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
           ? serverlessFileParam['stepFunctions']?.activities
           : [];
       if (isEmpty(this.serverless.service['stepFunctions']['stateMachines'])) {
-        this.serverless.service['stepFunctions']['stateMachines'] = this.getStepFunctionsConfig(
-          serverlessFileParam['stepFunctions']
-        );
+        this.getStepFunctionsConfig(serverlessFileParam['stepFunctions']).then((config) => {
+          this.serverless.service['stepFunctions']['stateMachines'] = config;
+        });
       }
       if (!this.serverless.pluginManager.cliOptions['stage']) {
         this.serverless.pluginManager.cliOptions['stage'] =
@@ -309,7 +309,7 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
     });
   }
 
-  getStepFunctionsConfig(filePathString: string): any {
+  async getStepFunctionsConfig(filePathString: string): Promise<any> {
     const filename = this._extractFilePath(filePathString);
     return this.parseYaml(filename);
   }
