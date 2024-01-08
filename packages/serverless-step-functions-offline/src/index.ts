@@ -275,7 +275,7 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
   }
 
   parseConfig(): Promise<void> {
-    return this.getRawConfig().then((serverlessFileParam) => {
+    return this.getRawConfig().then(async (serverlessFileParam) => {
       this.serverless.service['stepFunctions'] = {};
       this.serverless.service['stepFunctions']['stateMachines'] =
         serverlessFileParam['stepFunctions'] && serverlessFileParam['stepFunctions']?.stateMachines
@@ -286,9 +286,9 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
           ? serverlessFileParam['stepFunctions']?.activities
           : [];
       if (isEmpty(this.serverless.service['stepFunctions']['stateMachines'])) {
-        this.getStepFunctionsConfig(serverlessFileParam['stepFunctions']).then((config) => {
-          this.serverless.service['stepFunctions']['stateMachines'] = config;
-        });
+        this.serverless.service['stepFunctions'] = await this.getStepFunctionsConfig(
+          serverlessFileParam['stepFunctions']
+        );
       }
       if (!this.serverless.pluginManager.cliOptions['stage']) {
         this.serverless.pluginManager.cliOptions['stage'] =
@@ -315,7 +315,7 @@ export class StepFunctionsOfflinePlugin implements ServerlessPlugin {
   }
 
   _extractFilePath(filePathString: string): string | null {
-    const regex = /\$\{file\('([^']+)'\)\}/;
+    const regex = /\$\{file\(['"]?(.+?)['"]?\)\}/;
     const match = filePathString.match(regex);
 
     if (match && match[1]) {
