@@ -12,14 +12,17 @@ import * as fs from 'fs';
 import { forEach, isNil, first } from 'lodash';
 import * as path from 'path';
 import { mergeTypes } from 'merge-graphql-schemas';
-// @ts-ignore
-import directLambdaRequest from './templates/direct-lambda.request.vtl';
-// @ts-ignore
-import directLambdaResponse from './templates/direct-lambda.response.vtl';
 
 const directLambdaMappingTemplates = {
-  request: directLambdaRequest,
-  response: directLambdaResponse,
+  request: `{
+      "version": "2018-05-29",
+      "operation": "Invoke",
+      "payload": $utils.toJson($context)
+    }`,
+  response: `#if($ctx.error)
+              $util.error($ctx.error.message, $ctx.error.type, $ctx.result)
+             #end
+             $util.toJson($ctx.result)`,
 };
 
 export default function getAppSyncConfig(context, appSyncConfig): AmplifyAppSyncSimulatorConfig {
