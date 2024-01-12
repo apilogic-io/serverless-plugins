@@ -7,5 +7,5 @@
     "packages/serverless-step-functions-offline"
   ],
   "useNx": true,
-  "version": "1.2.12"
+  "version": "1.2.13"
 }
