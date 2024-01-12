@@ -1,36 +1,44 @@
-import {
-  AmplifyAppSyncSimulator,
-  addDataLoader,
-} from 'amplify-appsync-simulator';
-import { inspect } from 'util';
-import { defaults, get, merge, reduce } from 'lodash';
+import { addDataLoader, AmplifyAppSyncSimulator, AppSyncSimulatorDataSourceType } from 'amplify-appsync-simulator';
 import NodeEvaluator from 'cfn-resolver-lib';
-import getAppSyncConfig from './getAppSyncConfig';
-import NotImplementedDataLoader from './data-loaders/NotImplementedDataLoader';
-import ElasticDataLoader from './data-loaders/ElasticDataLoader';
 import HttpDataLoader from './data-loaders/HttpDataLoader';
 import watchman from 'fb-watchman';
+import { defaults, get, merge, reduce } from 'lodash';
+import * as Serverless from 'serverless';
+import * as ServerlessPlugin from 'serverless/classes/Plugin';
+import { Logging } from 'serverless/classes/Plugin';
+import { inspect } from 'util';
+import ElasticDataLoader from './data-loaders/ElasticDataLoader';
+import getAppSyncConfig from './getAppSyncConfig';
+import { Options } from './types';
 
 const resolverPathMap = {
   'AWS::DynamoDB::Table': 'Properties.TableName',
   'AWS::S3::Bucket': 'Properties.BucketName',
 };
 
-class ServerlessAppSyncSimulator {
-  constructor(serverless) {
+class ServerlessAppSyncSimulator implements ServerlessPlugin {
+  serverless: Serverless;
+  options: Options;
+  cli: Logging;
+  commands: ServerlessPlugin.Commands;
+  hooks: ServerlessPlugin['hooks'];
+  simulator: AmplifyAppSyncSimulator;
+  resourceResolvers: any;
+
+  constructor(serverless: Serverless, options: Options, cli: Logging) {
     this.serverless = serverless;
-    this.options = null;
-    this.log = this.log.bind(this);
-    this.debugLog = this.debugLog.bind(this);
+    this.options = options;
+    this.cli = cli;
 
     this.simulator = null;
-
+    // @ts-ignore
     addDataLoader('HTTP', HttpDataLoader);
+    // @ts-ignore
     addDataLoader('AMAZON_ELASTICSEARCH', ElasticDataLoader);
-    addDataLoader('RELATIONAL_DATABASE', NotImplementedDataLoader);
+    addDataLoader(AppSyncSimulatorDataSourceType.OpenSearch, ElasticDataLoader);
 
     this.hooks = {
-      'before:offline:start:init': this.startServer.bind(this),
+      'before:offline:start': this.startServer.bind(this),
       'before:offline:start:end': this.endServer.bind(this),
     };
   }
@@ -49,19 +57,12 @@ class ServerlessAppSyncSimulator {
     try {
       this.buildResolvedOptions();
       this.buildResourceResolvers();
-      this.serverless.service.functions = this.resolveResources(
-        this.serverless.service.functions,
-      );
-      this.serverless.service.provider.environment = this.resolveResources(
-        this.serverless.service.provider.environment,
-      );
-      this.serverless.service.custom.appSync = this.resolveResources(
-        this.serverless.service.custom.appSync,
-      );
+      this.serverless.service.functions = this.resolveResources(this.serverless.service.functions);
+      this.serverless.service.custom.appSync = this.resolveResources(this.serverless.service.custom.appSync);
 
       this.simulator = new AmplifyAppSyncSimulator({
-        port: this.options.port,
-        wsPort: this.options.wsPort,
+        port: this.options.port as number,
+        wsPort: this.options.wsPort as number,
       });
 
       await this.simulator.start();
@@ -89,7 +90,7 @@ class ServerlessAppSyncSimulator {
         serverless: this.serverless,
         options: this.options,
       },
-      appSync,
+      appSync
     );
 
     this.debugLog(`AppSync Config ${appSync.name}`);
@@ -118,12 +119,11 @@ class ServerlessAppSyncSimulator {
 
       // Watch for changes in vtl and schema files.
       const sub = {
-        expression: [
-          'anyof',
-          ...this.options.watch.map((glob) => ['match', glob]),
-        ],
+        // @ts-ignore
+        expression: ['anyof', ...this.options.watch.map((glob) => ['match', glob])],
         fields: ['name'],
         since: resp.clock,
+        relative_root: null,
       };
 
       const { watch, relative_path } = resp;
@@ -132,15 +132,12 @@ class ServerlessAppSyncSimulator {
       }
 
       // init subscription
-      client.command(
-        ['subscribe', watch, 'appsync-simulator', sub],
-        (error) => {
-          if (error) {
-            console.error('Failed to subscribe: ', error);
-            return;
-          }
-        },
-      );
+      client.command(['subscribe', watch, 'appsync-simulator', sub], (error) => {
+        if (error) {
+          console.error('Failed to subscribe: ', error);
+          return;
+        }
+      });
     });
 
     client.on('subscription', async (resp) => {
@@ -169,15 +166,12 @@ class ServerlessAppSyncSimulator {
 
         return acc;
       },
-      {},
+      {}
     );
 
     const keyValueArrayToObject = (mapping) => {
       if (Array.isArray(mapping)) {
-        return mapping.reduce(
-          (acc, { key, value }) => ({ ...acc, [key]: value }),
-          {},
-        );
+        return mapping.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {});
       }
       return mapping;
     };
@@ -190,9 +184,7 @@ class ServerlessAppSyncSimulator {
         'AWS::Region': this.serverless.service.provider.region,
       },
       'Fn::GetAttResolvers': keyValueArrayToObject(this.options.getAttMap),
-      'Fn::ImportValueResolvers': keyValueArrayToObject(
-        this.options.importValueMap,
-      ),
+      'Fn::ImportValueResolvers': keyValueArrayToObject(this.options.importValueMap),
     };
   }
 
@@ -210,17 +202,13 @@ class ServerlessAppSyncSimulator {
         getAttMap: {},
         importValueMap: {},
         dynamoDb: {
-          endpoint: `http://localhost:${get(
-            this.serverless.service,
-            'custom.dynamodb.start.port',
-            8000,
-          )}`,
+          endpoint: `http://localhost:${get(this.serverless.service, 'custom.dynamodb.start.port', 8000)}`,
           region: 'localhost',
           accessKeyId: 'DEFAULT_ACCESS_KEY',
           secretAccessKey: 'DEFAULT_SECRET',
         },
       },
-      get(this.serverless.service, 'custom.appsync-simulator', {}),
+      get(this.serverless.service, 'custom.appsync-simulator', {})
     );
 
     this.options = defaults(this.options, {
@@ -233,7 +221,7 @@ class ServerlessAppSyncSimulator {
    */
   resolveResources(toBeResolved) {
     // Pass all resources to allow Fn::GetAtt and Conditions resolution
-    if(!this.serverless.service.resources['Parameters']) {
+    if (!this.serverless.service.resources['Parameters']) {
       this.serverless.service.resources['Parameters'] = {};
     }
     const node = {

@@ -1,12 +1,20 @@
 import { AmplifyAppSyncSimulatorAuthenticationType as AuthTypes } from 'amplify-appsync-simulator';
-import {invokeResource} from 'amplify-java-function-runtime-provider/lib/utils/invoke';
-import {invoke} from 'amplify-nodejs-function-runtime-provider/lib/utils/invoke';
+import {
+  AmplifyAppSyncAPIConfig,
+  AmplifyAppSyncAuthenticationProviderConfig,
+  AmplifyAppSyncSimulatorConfig,
+  AppSyncSimulatorSchemaConfig,
+} from 'amplify-appsync-simulator/lib/type-definition';
+import { invokeResource } from './runtime-providers/java/invoke';
+import { invoke } from './runtime-providers/node/invoke';
 import axios from 'axios';
-import fs from 'fs';
+import * as fs from 'fs';
 import { forEach, isNil, first } from 'lodash';
-import path from 'path';
+import * as path from 'path';
 import { mergeTypes } from 'merge-graphql-schemas';
+// @ts-ignore
 import directLambdaRequest from './templates/direct-lambda.request.vtl';
+// @ts-ignore
 import directLambdaResponse from './templates/direct-lambda.response.vtl';
 
 const directLambdaMappingTemplates = {
@@ -14,7 +22,7 @@ const directLambdaMappingTemplates = {
   response: directLambdaResponse,
 };
 
-export default function getAppSyncConfig(context, appSyncConfig) {
+export default function getAppSyncConfig(context, appSyncConfig): AmplifyAppSyncSimulatorConfig {
   // Flattening params
   const cfg = {
     ...appSyncConfig,
@@ -25,7 +33,7 @@ export default function getAppSyncConfig(context, appSyncConfig) {
 
   const mappingTemplatesLocation = path.join(
     context.serverless.config.servicePath,
-    cfg.mappingTemplatesLocation || 'mapping-templates',
+    cfg.mappingTemplatesLocation || 'mapping-templates'
   );
 
   const { defaultMappingTemplates = {} } = cfg;
@@ -78,11 +86,12 @@ export default function getAppSyncConfig(context, appSyncConfig) {
           return {
             ...dataSource,
             invoke: async (payload) => {
+              console.log('IN INVOKE request');
               const result = await axios.request({
                 url: func.url,
                 method: func.method,
                 data: payload,
-                validateStatus: false,
+                validateStatus: (a) => false,
               });
               return result.data;
             },
@@ -96,48 +105,41 @@ export default function getAppSyncConfig(context, appSyncConfig) {
           });
           return null;
         }
-        if(func.runtime === 'java8' || func.runtime === 'java11') {
-
+        if (func.runtime === 'java8' || func.runtime === 'java11') {
           return {
             ...dataSource,
             invoke: (payload) =>
-                invokeResource({
-                  srcRoot: path.join(
-                      context.serverless.config.servicePath,
-                      context.options.location,
-                  ),
+              invokeResource(
+                {
+                  runtime: 'java',
+                  srcRoot: path.join(context.serverless.config.servicePath, context.options.location),
                   handler: func.handler,
                   package: func.environment.servicePackage,
                   event: JSON.stringify(payload),
-                  environment: {
-                    ...(context.options.lambda.loadLocalEnv === true
-                        ? process.env
-                        : {}),
+                  debug: func.environment.debug !== undefined ? func.environment.debug : false,
+                  envVars: {
+                    ...(context.options.lambda.loadLocalEnv === true ? process.env : {}),
                     ...context.serverless.service.provider.environment,
                     ...func.environment,
                   },
-                }),
+                },
+                context
+              ),
           };
-        }
-        else {
-           return {
+        } else {
+          return {
             ...dataSource,
             invoke: (payload) =>
-                invoke({
-                  packageFolder: path.join(
-                      context.serverless.config.servicePath,
-                      context.options.location,
-                  ),
-                  handler: func.handler,
-                  event: JSON.stringify(payload),
-                  environment: {
-                    ...(context.options.lambda.loadLocalEnv === true
-                        ? process.env
-                        : {}),
-                    ...context.serverless.service.provider.environment,
-                    ...func.environment,
-                  },
-                }),
+              invoke({
+                packageFolder: path.join(context.serverless.config.servicePath, context.options.location),
+                handler: func.handler,
+                event: JSON.stringify(payload),
+                environment: {
+                  ...(context.options.lambda.loadLocalEnv === true ? process.env : {}),
+                  ...context.serverless.service.provider.environment,
+                  ...func.environment,
+                },
+              }),
           };
         }
       }
@@ -201,42 +203,41 @@ export default function getAppSyncConfig(context, appSyncConfig) {
     responseMappingTemplate: makeMappingTemplate(config, 'response'),
   });
 
-  const makeAuthType = (authType) => {
-    const auth = {
-      authenticationType: authType.authenticationType,
-    };
-
-    if (auth.authenticationType === AuthTypes.AMAZON_COGNITO_USER_POOLS) {
-      auth.cognitoUserPoolConfig = {
-        AppIdClientRegex: authType.userPoolConfig.appIdClientRegex,
+  const makeAuthType = (
+    apiConfig: AmplifyAppSyncAuthenticationProviderConfig
+  ): AmplifyAppSyncAuthenticationProviderConfig => {
+    const authType = apiConfig.authenticationType;
+    if (authType === AuthTypes.AMAZON_COGNITO_USER_POOLS) {
+      return {
+        authenticationType: authType,
+        cognitoUserPoolConfig: {
+          AppIdClientRegex: apiConfig.cognitoUserPoolConfig.AppIdClientRegex,
+        },
       };
-    } else if (auth.authenticationType === AuthTypes.OPENID_CONNECT) {
-      auth.openIDConnectConfig = {
-        Issuer: authType.openIdConnectConfig.issuer,
-        ClientId: authType.openIdConnectConfig.clientId,
+    } else if (authType === AuthTypes.OPENID_CONNECT) {
+      return {
+        authenticationType: authType,
+        openIDConnectConfig: {
+          Issuer: apiConfig.openIDConnectConfig.Issuer,
+          ClientId: apiConfig.openIDConnectConfig.ClientId,
+        },
       };
     }
-
-    return auth;
   };
 
-  const makeAppSync = (config) => ({
+  const makeAppSync = (config): AmplifyAppSyncAPIConfig => ({
     name: config.name,
     apiKey: context.options.apiKey,
     defaultAuthenticationType: makeAuthType(config),
-    additionalAuthenticationProviders: (
-      config.additionalAuthenticationProviders || []
-    ).map(makeAuthType),
+    additionalAuthenticationProviders: (config.additionalAuthenticationProviders || []).map(makeAuthType),
   });
 
   // Load the schema. If multiple provided, merge them
-  const schemaPaths = Array.isArray(cfg.schema)
-    ? cfg.schema
-    : [cfg.schema || 'schema.graphql'];
-  const schemas = schemaPaths.map((schemaPath) =>
-    getFileMap(context.serverless.config.servicePath, schemaPath),
+  const schemaPaths = Array.isArray(cfg.schema) ? cfg.schema : [cfg.schema || 'schema.graphql'];
+  const schemas: [AppSyncSimulatorSchemaConfig] = schemaPaths.map((schemaPath) =>
+    getFileMap(context.serverless.config.servicePath, schemaPath)
   );
-  const schema = {
+  const schema: AppSyncSimulatorSchemaConfig = {
     path: first(schemas).path,
     content: mergeTypes(schemas.map((s) => s.content)),
   };
