@@ -1,6 +1,6 @@
 {
   "name": "@apilogic/serverless-appsync-java-simulator",
-  "version": "1.2.13",
+  "version": "1.2.14",
   "description": "Offline support for java serverless-appsync-plugin",
   "repository": {
     "type": "git",
@@ -46,8 +46,8 @@
     "merge-graphql-schemas": "^1.5.8"
   },
   "devDependencies": {
-    "@types/serverless": "3.12.7",
     "@types/fb-watchman": "^2.0.4",
+    "@types/serverless": "3.12.7",
     "amplify-appsync-simulator": "^2.4.1",
     "asl-types": "^1.2.1",
     "prettier": "^3.1.1",
