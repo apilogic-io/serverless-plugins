@@ -1,7 +1,7 @@
 import { addDataLoader, AmplifyAppSyncSimulator, AppSyncSimulatorDataSourceType } from 'amplify-appsync-simulator';
 import NodeEvaluator from 'cfn-resolver-lib';
+import { Client } from 'fb-watchman';
 import HttpDataLoader from './data-loaders/HttpDataLoader';
-import watchman from 'fb-watchman';
 import { defaults, get, merge, reduce } from 'lodash';
 import * as Serverless from 'serverless';
 import * as ServerlessPlugin from 'serverless/classes/Plugin';
@@ -34,7 +34,6 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
     // @ts-ignore
     addDataLoader('HTTP', HttpDataLoader);
     // @ts-ignore
-    addDataLoader('AMAZON_ELASTICSEARCH', ElasticDataLoader);
     addDataLoader(AppSyncSimulatorDataSourceType.OpenSearch, ElasticDataLoader);
 
     this.hooks = {
@@ -100,7 +99,7 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
   }
 
   watch() {
-    const client = new watchman.Client();
+    const client = new Client();
     const path = this.serverless.config.servicePath;
 
     // Try to watch for changes in AppSync configuration

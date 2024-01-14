@@ -35,7 +35,7 @@
   "dependencies": {
     "aws-sdk": "^2.1534.0",
     "axios": "^1.6.5",
-    "cfn-resolver-lib": "^1.1.8",
+    "cfn-resolver-lib": "^1.1.7",
     "dataloader": "^2.0.0",
     "esbuild": "^0.14.48",
     "esbuild-node-externals": "^1.4.1",
@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@types/serverless": "3.12.7",
+    "@types/fb-watchman": "^2.0.4",
     "amplify-appsync-simulator": "^2.4.1",
     "asl-types": "^1.2.1",
     "prettier": "^3.1.1",
