@@ -1,9 +1,8 @@
 import axios from 'axios';
+import { AppSyncSimulatorOpenSearchConfig } from '../types';
 
-export default class ElasticDataLoader {
-  constructor(config) {
-    this.config = config;
-  }
+export class ElasticDataLoader {
+  constructor(private config: AppSyncSimulatorOpenSearchConfig) {}
 
   async load(req) {
     try {

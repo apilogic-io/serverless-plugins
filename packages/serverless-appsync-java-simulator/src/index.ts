@@ -1,14 +1,13 @@
 import { addDataLoader, AmplifyAppSyncSimulator, AppSyncSimulatorDataSourceType } from 'amplify-appsync-simulator';
-import NodeEvaluator from 'cfn-resolver-lib';
+import * as cfnResolverLib from 'cfn-resolver-lib';
 import { Client } from 'fb-watchman';
-import HttpDataLoader from './data-loaders/HttpDataLoader';
 import { defaults, get, merge, reduce } from 'lodash';
 import * as Serverless from 'serverless';
 import * as ServerlessPlugin from 'serverless/classes/Plugin';
-import { Logging } from 'serverless/classes/Plugin';
 import { inspect } from 'util';
-import ElasticDataLoader from './data-loaders/ElasticDataLoader';
-import getAppSyncConfig from './getAppSyncConfig';
+import { AppSyncSimulatorConfig } from './appsync-simulator-config';
+import { ElasticDataLoader } from './data-loaders/elastic-data-loader';
+import { HttpDataLoader } from './data-loaders/http-data-loader';
 import { Options } from './types';
 
 const resolverPathMap = {
@@ -19,16 +18,16 @@ const resolverPathMap = {
 class ServerlessAppSyncSimulator implements ServerlessPlugin {
   serverless: Serverless;
   options: Options;
-  cli: Logging;
+  logger: ServerlessPlugin.Logging;
   commands: ServerlessPlugin.Commands;
   hooks: ServerlessPlugin['hooks'];
   simulator: AmplifyAppSyncSimulator;
   resourceResolvers: any;
 
-  constructor(serverless: Serverless, options: Options, cli: Logging) {
+  constructor(serverless: Serverless, options: Options, log) {
     this.serverless = serverless;
     this.options = options;
-    this.cli = cli;
+    this.logger = log;
 
     this.simulator = null;
     // @ts-ignore
@@ -43,7 +42,7 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
   }
 
   log(message, opts = {}) {
-    return this.serverless.cli.log(message, 'AppSync Simulator', opts);
+    return this.logger.log.info(message, 'AppSync Simulator', opts);
   }
 
   debugLog(message, opts = {}) {
@@ -83,7 +82,7 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
     const appSync = Array.isArray(this.serverless.service.custom.appSync)
       ? this.serverless.service.custom.appSync[0]
       : this.serverless.service.custom.appSync;
-    const config = getAppSyncConfig(
+    const appSyncSimulatorConfig = new AppSyncSimulatorConfig(
       {
         plugin: this,
         serverless: this.serverless,
@@ -91,6 +90,7 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
       },
       appSync
     );
+    const config = appSyncSimulatorConfig.getAppSyncConfig();
 
     this.debugLog(`AppSync Config ${appSync.name}`);
     this.debugLog(inspect(config, { depth: 4, colors: true }));
@@ -227,7 +227,7 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
       ...this.serverless.service.resources,
       toBeResolved,
     };
-    const evaluator = new NodeEvaluator(node, this.resourceResolvers);
+    const evaluator = new cfnResolverLib(node, this.resourceResolvers);
     const result = evaluator.evaluateNodes();
     if (result && result.toBeResolved) {
       return result.toBeResolved;

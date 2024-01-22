@@ -36,6 +36,7 @@
     "aws-sdk": "^2.1534.0",
     "axios": "^1.6.5",
     "cfn-resolver-lib": "^1.1.7",
+    "amplify-nodejs-function-runtime-provider": "^2.5.14",
     "dataloader": "^2.0.0",
     "esbuild": "^0.14.48",
     "esbuild-node-externals": "^1.4.1",

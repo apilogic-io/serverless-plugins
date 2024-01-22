@@ -1,5 +1,14 @@
-import { Choice, Map, Parallel, State, StateMachine, Task, Wait } from 'asl-types';
-import * as Serverless from 'serverless';
+import {
+  AmplifyAppSyncSimulatorAuthenticationType,
+  AppSyncSimulatorDataSourceBaseConfig,
+  AppSyncSimulatorDataSourceConfig,
+  AppSyncSimulatorDataSourceType,
+  AppSyncSimulatorFunctionsConfig,
+  AppSyncSimulatorMappingTemplate,
+  AppSyncSimulatorSchemaConfig,
+  AppSyncSimulatorTable,
+  RESOLVER_KIND,
+} from 'amplify-appsync-simulator/lib/type-definition';
 
 // from https://stackoverflow.com/a/49725198/3296811
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
@@ -7,74 +16,76 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyo
     [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
   }[Keys];
 
-export type StateMachineBase = {
-  definition: StateMachine;
+export enum AppSyncSimulatorCustomDataSourceType {
+  Http = 'HTTP',
+}
+
+export type AppSyncSimulatorCustomFunctionsConfig = AppSyncSimulatorFunctionsConfig & {
+  dataSource: string;
+  type: string;
+  field: string;
+  substitutions: {};
+  requestMappingTemplate: string;
+  responseMappingTemplate: string;
 };
+
+export type AmplifyAppSyncSimulatorCustomConfig = {
+  authenticationType: AmplifyAppSyncSimulatorAuthenticationType;
+  mappingTemplatesLocation: string;
+  functionConfigurationsLocation: string;
+  defaultMappingTemplates;
+  functionConfigurations: AppSyncSimulatorCustomFunctionsConfig[];
+  substitutions: {};
+  mappingTemplates: AmplifyAppSyncSimulatorCustomMappingTemplate[];
+  dataSources?: AppSyncSimulatorDataSourceConfig[];
+  schema: AppSyncSimulatorSchemaConfig;
+  name: string;
+  defaultAuthenticationType: AmplifyAppSyncSimulatorCustomConfig;
+  authRoleName?: string;
+  unAuthRoleName?: string;
+  authAccessKeyId?: string;
+  accountId?: string;
+  apiKey?: string;
+  additionalAuthenticationProviders: AmplifyAppSyncSimulatorCustomConfig[];
+  tables?: AppSyncSimulatorTable[];
+  userPoolConfig: {};
+  openIDConnectConfig: {};
+};
+
+export type AmplifyAppSyncSimulatorCustomMappingTemplate = AppSyncSimulatorMappingTemplate & {
+  kind: RESOLVER_KIND;
+  field: string;
+  type: string;
+  dataSource: string;
+  functions: string[];
+  substitutions: {};
+  name: string;
+};
+
+export interface AppSyncSimulatorOpenSearchConfig extends AppSyncSimulatorDataSourceBaseConfig {
+  type: AppSyncSimulatorDataSourceType.OpenSearch | `${AppSyncSimulatorDataSourceType.OpenSearch}`;
+  endpoint: string;
+}
+
+// @ts-ignore
+export interface AppSyncSimulatorHttpConfig extends AppSyncSimulatorDataSourceBaseConfig {
+  name: string;
+  type: AppSyncSimulatorCustomDataSourceType.Http | `${AppSyncSimulatorCustomDataSourceType.Http}`;
+  config: {
+    endpoint: string;
+  };
+}
+
+export type AppSyncSimulatorDataSourceCustomConfig =
+  | AppSyncSimulatorDataSourceConfig
+  | AppSyncSimulatorOpenSearchConfig
+  | AppSyncSimulatorHttpConfig;
 
 export type Maybe<T> = null | undefined | T;
 
 export type Event = Record<string, any>;
 
-export type NotCompletedState = Parallel | Task | Map | Wait | Choice;
-
-export const isNotCompletedState = (state: State): state is NotCompletedState => {
-  if (isType('Parallel')<Parallel>(state)) return true;
-  if (isType('Task')<Task>(state)) return true;
-  if (isType('Map')<Map>(state)) return true;
-  if (isType('Wait')<Wait>(state)) return true;
-  if (isType('Choice')<Choice>(state)) return true;
-  return false;
-};
-
-export type StateValueReturn = void | Promise<'Fail' | 'Succeed'> | StateHandler | ChoiceConditional;
-
-export type ChoiceInstance = {
-  variable: string;
-  condition: Partial<Choice>;
-  choiceFunction?: string;
-  compareWithValue: unknown;
-  checkFunction: <T>(value: T, secondValue: T) => boolean;
-};
-
-export type ChoiceConditional = {
-  choice: ChoiceInstance[];
-  defaultFunction?: string;
-};
-
-export type Branch = StateMachine;
-
-export const notEmpty = <TValue>(value: Maybe<TValue>): value is TValue => value !== null && value !== undefined;
-
-interface StateType {
-  Type: string;
-}
-
-export const isType =
-  (type: string) =>
-  <T extends StateType>(state: State | T): state is T =>
-    state.Type === type;
-
-export const definitionIsHandler = (
-  value: Maybe<Serverless.FunctionDefinitionHandler | Serverless.FunctionDefinitionImage>
-): value is Serverless.FunctionDefinitionHandler => Object.prototype.hasOwnProperty.call(value, 'handler');
-
-export const stateIsChoiceConditional = (value: Maybe<ChoiceConditional | StateHandler>): value is ChoiceConditional =>
-  Object.prototype.hasOwnProperty.call(value, 'choice');
-
-export type Failure = {
-  Cause?: unknown;
-  Error?: unknown;
-};
-
 export type Callback = (event, context: ContextObject, done: ContextObject['cb']) => void;
-export type AsyncCallback = (event, context: ContextObject, done?: ContextObject['cb']) => Promise<void | Event>;
-
-export type StateHandler = {
-  waitState?: boolean;
-  name?: string;
-  f: (event: Event) => Callback | Promise<void | AsyncCallback>;
-  choice?: Choice;
-};
 
 export type ContextObject = {
   name: string;
@@ -89,9 +100,10 @@ export type Options = {
   location?: Maybe<string>;
   stateMachine?: Maybe<string>;
   lambdaEndpoint?: Maybe<string>;
+  dynamoDb?: {};
   detailedLog?: boolean;
   l?: boolean;
-  [key: string]: unknown;
+  [key: string]: any;
   stage?: string;
   region?: string;
 } & RequireAtLeastOne<
@@ -104,10 +116,22 @@ export type Options = {
   'event' | 'e'
 >;
 
-export class SLSError extends Error {
-  statusCode?: string;
-  constructor(msg: string, statusCode?: string) {
-    super(msg);
-    this.statusCode = statusCode;
-  }
-}
+const DEFAULT_MAPPING_TEMPLATE_LOCATION = 'mapping-templates';
+const DEFAULT_ENCODING = 'utf8';
+const DEFAULT_SCHEMA_FILE = 'schema.graphql';
+const DEFAULT_HTTP_METHOD = 'POST';
+const DEFAULT_RESOLVER_TYPE = 'UNIT';
+
+const MappingTemplateType = {
+  MAPPING_TEMPLATE: 'mappingTemplate',
+  FUNCTION_CONFIGURATION: 'functionConfiguration',
+};
+
+export {
+  DEFAULT_MAPPING_TEMPLATE_LOCATION,
+  DEFAULT_ENCODING,
+  DEFAULT_SCHEMA_FILE,
+  DEFAULT_HTTP_METHOD,
+  DEFAULT_RESOLVER_TYPE,
+  MappingTemplateType,
+};

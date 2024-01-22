@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { isObject, forEach } from 'lodash';
+import { AppSyncSimulatorHttpConfig } from '../types';
 
 const paramsSerializer = (params) => {
   const parts = [];
@@ -29,16 +30,14 @@ const paramsSerializer = (params) => {
   return parts.join('&');
 };
 
-export default class HttpDataLoader {
-  constructor(config) {
-    this.config = config;
-  }
+export class HttpDataLoader {
+  constructor(private config: AppSyncSimulatorHttpConfig) {}
 
-  async load(req) {
+  async load(req): Promise<any> {
     try {
       const { data, status, headers } = await axios.request({
-        baseURL: this.config.endpoint,
-        validateStatus: false,
+        baseURL: this.config.config.endpoint,
+        validateStatus: (status: number) => false,
         url: req.resourcePath,
         headers: req.params.headers,
         params: req.params.query,
