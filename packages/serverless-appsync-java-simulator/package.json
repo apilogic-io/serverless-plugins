@@ -1,6 +1,6 @@
 {
   "name": "@apilogic/serverless-appsync-java-simulator",
-  "version": "1.2.14",
+  "version": "1.2.15",
   "description": "Offline support for java serverless-appsync-plugin",
   "repository": {
     "type": "git",
@@ -33,10 +33,10 @@
   "author": "Vitalie Robu",
   "license": "MIT",
   "dependencies": {
+    "amplify-nodejs-function-runtime-provider": "^2.5.14",
     "aws-sdk": "^2.1534.0",
     "axios": "^1.6.5",
     "cfn-resolver-lib": "^1.1.7",
-    "amplify-nodejs-function-runtime-provider": "^2.5.14",
     "dataloader": "^2.0.0",
     "esbuild": "^0.14.48",
     "esbuild-node-externals": "^1.4.1",
