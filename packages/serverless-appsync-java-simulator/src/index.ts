@@ -8,7 +8,7 @@ import { inspect } from 'util';
 import { AppSyncSimulatorConfig } from './appsync-simulator-config';
 import { ElasticDataLoader } from './data-loaders/elastic-data-loader';
 import { HttpDataLoader } from './data-loaders/http-data-loader';
-import { Options } from './types';
+import { Options, ServerlessWithAppsync } from './types';
 
 const resolverPathMap = {
   'AWS::DynamoDB::Table': 'Properties.TableName',
@@ -16,7 +16,7 @@ const resolverPathMap = {
 };
 
 class ServerlessAppSyncSimulator implements ServerlessPlugin {
-  serverless: Serverless;
+  serverless: ServerlessWithAppsync;
   options: Options;
   logger: ServerlessPlugin.Logging;
   commands: ServerlessPlugin.Commands;
@@ -24,7 +24,7 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
   simulator: AmplifyAppSyncSimulator;
   resourceResolvers: any;
 
-  constructor(serverless: Serverless, options: Options, log) {
+  constructor(serverless: ServerlessWithAppsync, options: Options, log) {
     this.serverless = serverless;
     this.options = options;
     this.logger = log;
@@ -56,7 +56,7 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
       this.buildResolvedOptions();
       this.buildResourceResolvers();
       this.serverless.service.functions = this.resolveResources(this.serverless.service.functions);
-      this.serverless.service.custom.appSync = this.resolveResources(this.serverless.service.custom.appSync);
+      this.serverless.service.appSync = this.resolveResources(this.serverless.service.appSync);
 
       this.simulator = new AmplifyAppSyncSimulator({
         port: this.options.port as number,

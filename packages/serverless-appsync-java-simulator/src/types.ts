@@ -9,6 +9,8 @@ import {
   AppSyncSimulatorTable,
   RESOLVER_KIND,
 } from 'amplify-appsync-simulator/lib/type-definition';
+import * as Serverless from 'serverless';
+import * as Service from 'serverless/classes/Service';
 
 // from https://stackoverflow.com/a/49725198/3296811
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
@@ -29,24 +31,43 @@ export type AppSyncSimulatorCustomFunctionsConfig = AppSyncSimulatorFunctionsCon
   responseMappingTemplate: string;
 };
 
+export type AppsyncSimulatorAuthenticationConfig = {
+  type: AmplifyAppSyncSimulatorAuthenticationType;
+  config: {
+    AppIdClientRegex: string;
+    openIDConnectConfig: {
+      Issuer: string;
+      ClientId: string;
+    };
+  };
+};
+
+export type AppSyncSimulatorCustomConfig = AmplifyAppSyncSimulatorCustomConfig & {
+  resolvers: { [key: string]: AmplifyAppSyncSimulatorCustomMappingTemplate };
+  pipelineFunctions: { [key: string]: AppSyncSimulatorCustomFunctionsConfig };
+  dataSources: { [key: string]: AppSyncSimulatorDataSourceConfig };
+  authentication: AppsyncSimulatorAuthenticationConfig;
+  additionalAuthentications: AppsyncSimulatorAuthenticationConfig[];
+};
+
 export type AmplifyAppSyncSimulatorCustomConfig = {
   authenticationType: AmplifyAppSyncSimulatorAuthenticationType;
-  mappingTemplatesLocation: string;
+  resolversLocation: string;
   functionConfigurationsLocation: string;
   defaultMappingTemplates;
   functionConfigurations: AppSyncSimulatorCustomFunctionsConfig[];
   substitutions: {};
   mappingTemplates: AmplifyAppSyncSimulatorCustomMappingTemplate[];
-  dataSources?: AppSyncSimulatorDataSourceConfig[];
+  data?: AppSyncSimulatorDataSourceConfig[];
   schema: AppSyncSimulatorSchemaConfig;
   name: string;
-  defaultAuthenticationType: AmplifyAppSyncSimulatorCustomConfig;
+  defaultAuthenticationType: AppsyncSimulatorAuthenticationConfig;
   authRoleName?: string;
   unAuthRoleName?: string;
   authAccessKeyId?: string;
   accountId?: string;
   apiKey?: string;
-  additionalAuthenticationProviders: AmplifyAppSyncSimulatorCustomConfig[];
+  additionalAuthenticationProviders: AppSyncSimulatorCustomConfig[];
   tables?: AppSyncSimulatorTable[];
   userPoolConfig: {};
   openIDConnectConfig: {};
@@ -126,6 +147,14 @@ const MappingTemplateType = {
   MAPPING_TEMPLATE: 'mappingTemplate',
   FUNCTION_CONFIGURATION: 'functionConfiguration',
 };
+
+export class ServerlessServiceWithAppsync extends Service {
+  appSync: any;
+}
+
+export class ServerlessWithAppsync extends Serverless {
+  service: ServerlessServiceWithAppsync;
+}
 
 export {
   DEFAULT_MAPPING_TEMPLATE_LOCATION,

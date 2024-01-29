@@ -27,6 +27,7 @@ import { invokeResource } from './runtime-providers/java/invoke';
 import {
   AmplifyAppSyncSimulatorCustomConfig,
   AmplifyAppSyncSimulatorCustomMappingTemplate,
+  AppSyncSimulatorCustomConfig,
   AppSyncSimulatorCustomFunctionsConfig,
   AppSyncSimulatorDataSourceCustomConfig,
   AppSyncSimulatorOpenSearchConfig,
@@ -58,26 +59,18 @@ export class AppSyncSimulatorConfig {
   private readonly defaultMappingTemplates: {};
   private logger: ServerlessPlugin.Logging;
 
-  constructor(
-    private context: AppSyncSimulatorConfigContext,
-    private appSyncConfig: AmplifyAppSyncSimulatorCustomConfig
-  ) {
+  constructor(private context: AppSyncSimulatorConfigContext, private appSyncConfig: AppSyncSimulatorCustomConfig) {
     this.mappingTemplatesLocation = path.join(
       context.serverless.config.servicePath,
-      appSyncConfig.mappingTemplatesLocation || DEFAULT_MAPPING_TEMPLATE_LOCATION
+      appSyncConfig.resolversLocation || DEFAULT_MAPPING_TEMPLATE_LOCATION
     );
     this.defaultMappingTemplates = appSyncConfig.defaultMappingTemplates;
   }
 
   getAppSyncConfig(): AmplifyAppSyncSimulatorConfig {
-    const cfg: AmplifyAppSyncSimulatorCustomConfig = {
-      ...this.appSyncConfig,
-      mappingTemplates: (this.appSyncConfig.mappingTemplates || []).flat(),
-      functionConfigurations: (this.appSyncConfig.functionConfigurations || []).flat(),
-      dataSources: (this.appSyncConfig.dataSources || []).flat(),
-    };
-
-    const schemaPaths = Array.isArray(cfg.schema) ? cfg.schema : [cfg.schema || 'schema.graphql'];
+    const schemaPaths = Array.isArray(this.appSyncConfig.schema)
+      ? this.appSyncConfig.schema
+      : [this.appSyncConfig.schema || 'schema.graphql'];
     const schemas: AppSyncSimulatorSchemaConfig[] = schemaPaths.map((schemaPath) =>
       this.getFileMap(this.context.serverless.config.servicePath, schemaPath)
     );
@@ -87,11 +80,15 @@ export class AppSyncSimulatorConfig {
     };
 
     return {
-      appSync: this.makeAppSync(cfg),
+      appSync: this.makeAppSync(),
       schema,
-      resolvers: cfg.mappingTemplates.map((mappingTemplate) => this.makeResolver(mappingTemplate, this)),
-      dataSources: cfg.dataSources.map((datasource) => this.makeDataSource(datasource, this)).filter((v) => v !== null),
-      functions: cfg.functionConfigurations.map((functionConfiguration) =>
+      resolvers: Object.values(this.appSyncConfig.resolvers).map((mappingTemplate) =>
+        this.makeResolver(mappingTemplate, this)
+      ),
+      dataSources: Object.values(this.appSyncConfig.dataSources)
+        .map((datasource) => this.makeDataSource(datasource, this))
+        .filter((v) => v !== null),
+      functions: Object.values(this.appSyncConfig.pipelineFunctions).map((functionConfiguration) =>
         this.makeFunctionConfiguration(functionConfiguration, this)
       ),
     };
@@ -116,12 +113,14 @@ export class AppSyncSimulatorConfig {
     };
   }
 
-  makeAppSync(config: AmplifyAppSyncSimulatorCustomConfig): AmplifyAppSyncAPIConfig {
+  makeAppSync(): AmplifyAppSyncAPIConfig {
     return {
-      name: config.name,
+      name: this.appSyncConfig.name,
       apiKey: this.context.options.apiKey,
-      defaultAuthenticationType: this.makeAuthType(config),
-      additionalAuthenticationProviders: (config.additionalAuthenticationProviders || []).map(this.makeAuthType),
+      defaultAuthenticationType: this.makeAuthType(this.appSyncConfig),
+      additionalAuthenticationProviders: (this.appSyncConfig.additionalAuthenticationProviders || []).map(
+        this.makeAuthType
+      ),
     };
   }
 
@@ -301,21 +300,21 @@ export class AppSyncSimulatorConfig {
     };
   }
 
-  makeAuthType(apiConfig: AmplifyAppSyncSimulatorCustomConfig): AmplifyAppSyncAuthenticationProviderConfig {
-    const authType = apiConfig.authenticationType;
+  makeAuthType(apiConfig: AppSyncSimulatorCustomConfig): AmplifyAppSyncAuthenticationProviderConfig {
+    const authType = apiConfig.authentication.type;
     if (authType === AuthTypes.AMAZON_COGNITO_USER_POOLS) {
       return {
         authenticationType: authType,
         cognitoUserPoolConfig: {
-          AppIdClientRegex: apiConfig.userPoolConfig['AppIdClientRegex'],
+          AppIdClientRegex: apiConfig.authentication.config.AppIdClientRegex,
         },
       };
     } else if (authType === AuthTypes.OPENID_CONNECT) {
       return {
         authenticationType: authType,
         openIDConnectConfig: {
-          Issuer: apiConfig.openIDConnectConfig['Issuer'],
-          ClientId: apiConfig.openIDConnectConfig['ClientId'],
+          Issuer: apiConfig.authentication.config.openIDConnectConfig.Issuer,
+          ClientId: apiConfig.authentication.config.openIDConnectConfig.ClientId,
         },
       };
     } else if (authType === AmplifyAppSyncSimulatorAuthenticationType.API_KEY) {
