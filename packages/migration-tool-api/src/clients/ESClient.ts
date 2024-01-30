@@ -1,16 +1,14 @@
-import { ClientOptions } from '@opensearch-project/opensearch';
-import { Client } from '@opensearch-project/opensearch';
+import {Client, ClientOptions} from '@opensearch-project/opensearch';
 import {
   IndicesCreate,
   IndicesDeleteAlias,
   IndicesPutAlias,
   IndicesPutMapping,
 } from '@opensearch-project/opensearch/api/requestParams';
-import { IndicesCreateRequest } from '@opensearch-project/opensearch/api/types';
-import { TransportRequestPromise } from '@opensearch-project/opensearch/lib/Transport';
+import {RequestBody} from '@opensearch-project/opensearch/lib/Transport';
 import * as fs from 'fs';
-import { DataApiClientModule } from '../DataApiClientModule';
-import { ApiClient } from './ApiClient';
+import {DataApiClientModule} from '../DataApiClientModule';
+import {ApiClient} from './ApiClient';
 import ClientConfig = DataApiClientModule.ClientConfig;
 
 export class ESClient implements ApiClient {
@@ -61,12 +59,12 @@ export class ESClient implements ApiClient {
     return undefined;
   }
 
-  public async createIndex(
+  async createIndex(
     index: string,
     workingDir: string,
     settingsPath: string,
     mappingsPath: string,
-    alias?: string
+    alias: string
   ): Promise<unknown> {
     const indexExist = await this._client.indices.exists({ index });
     console.log('EXISTS ' + indexExist);
@@ -77,14 +75,16 @@ export class ESClient implements ApiClient {
       if (alias) {
         requestParams.body.aliases = {};
         requestParams.body.aliases[alias] = {};
+      } else {
+        throw new Error(`Alias must be provided!`);
       }
       console.log('Create index params: ', requestParams);
       await this._client.indices.create(requestParams);
     }
-    return this.mappingsPayload(index, workingDir, mappingsPath);
+    return this._mappingsPayload(index, workingDir, mappingsPath);
   }
 
-  public async upsertIndexAlias(aliasName: string, newIndexName: string, oldIndexName?: string): Promise<unknown> {
+  async upsertIndexAlias(aliasName: string, newIndexName: string, oldIndexName?: string): Promise<unknown> {
     console.log(`Moving alias ${aliasName} from index ${oldIndexName} to index ${newIndexName}`);
     if (oldIndexName) {
       try {
@@ -108,15 +108,39 @@ export class ESClient implements ApiClient {
     }
   }
 
-  public async updateIndex(index: string, workingDir: string, mappingsPath: string): Promise<unknown> {
-    return this.mappingsPayload(index, workingDir, mappingsPath);
+   async updateIndex(index: string, workingDir: string, mappingsPath: string): Promise<unknown> {
+    return this._mappingsPayload(index, workingDir, mappingsPath);
   }
 
-  public async deleteIndex(index: string): Promise<unknown> {
+  async deleteIndex(index: string): Promise<unknown> {
     return this._client.indices.delete({ index });
   }
 
-  private async mappingsPayload(index: string, workingDirectory: string, mappingsPath: string) {
+  async putScript(id: string, body?: RequestBody): Promise<unknown> {
+    return this._client.putScript({
+      id,
+      body
+    });
+  }
+
+  async deleteScript(id: string): Promise<unknown> {
+    return this._client.deleteScript({id});
+  }
+
+  async reindexData(sourceIndex: string, destinationIndex: string): Promise<unknown> {
+    const destinationIndexResponse = await this._client.indices.exists({index: destinationIndex});
+    if (destinationIndexResponse.statusCode === 404) {
+      throw new Error(`Index does not exist. Cannot reindex data from ${sourceIndex} to non-existent ${destinationIndex}`);
+    }
+    return this._client.reindex({
+      body: {
+        source: { index: sourceIndex },
+        dest: { index: destinationIndex }
+      }
+    });
+  }
+
+  private async _mappingsPayload(index: string, workingDirectory: string, mappingsPath: string) {
     const properties = JSON.parse(fs.readFileSync(workingDirectory + mappingsPath, 'utf-8'));
     const requestParams: IndicesPutMapping = {
       index,
