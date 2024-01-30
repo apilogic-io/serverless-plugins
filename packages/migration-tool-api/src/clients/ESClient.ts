@@ -157,8 +157,8 @@ export class ESClient implements ApiClient {
       throw new Error(`Error occured during reindex operation: Source index: ${sourceIndex}, Destination index: ${destinationIndex}`);
     }
 
-    const sourceIndexAliasesResponse = await this._client.cat.aliases({v: true, s: 'alias'});
-    const aliases = Object.values(sourceIndexAliasesResponse.body).filter((responseBody) => responseBody.index === sourceIndex).map((responseBody) => ({name: responseBody.alias, index: responseBody.index}));
+    const sourceIndexAliasesResponse = await this._client.cat.aliases({v: true, format: 'json'});
+    const aliases = (sourceIndexAliasesResponse.body as Array<unknown>).filter((responseBody) => responseBody['index'] === sourceIndex).map((responseBody) => ({name: responseBody['alias']}));
 
     try {
       for (const alias of aliases) {
