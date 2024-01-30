@@ -66,6 +66,9 @@ export class ESClient implements ApiClient {
     mappingsPath: string,
     alias: string
   ): Promise<unknown> {
+    if(!alias){
+      throw new Error(`Alias must be provided!`);
+    }
     const indexExist = await this._client.indices.exists({ index });
     console.log('EXISTS ' + indexExist);
     if (!indexExist.body) {
@@ -75,8 +78,6 @@ export class ESClient implements ApiClient {
       if (alias) {
         requestParams.body.aliases = {};
         requestParams.body.aliases[alias] = {};
-      } else {
-        throw new Error(`Alias must be provided!`);
       }
       console.log('Create index params: ', requestParams);
       await this._client.indices.create(requestParams);
@@ -117,27 +118,56 @@ export class ESClient implements ApiClient {
   }
 
   async putScript(id: string, body?: RequestBody): Promise<unknown> {
-    return this._client.putScript({
-      id,
-      body
-    });
+    try {
+      return this._client.putScript({
+        id,
+        body
+      });
+    } catch (e) {
+      throw new Error(`Error inserting script with id: ${id}`)
+    }
   }
 
   async deleteScript(id: string): Promise<unknown> {
-    return this._client.deleteScript({id});
+    try {
+      return this._client.deleteScript({id});
+    } catch (e) {
+      throw new Error(`Error deleting script with id: ${id}`)
+    }
   }
 
   async reindexData(sourceIndex: string, destinationIndex: string): Promise<unknown> {
     const destinationIndexResponse = await this._client.indices.exists({index: destinationIndex});
+    const sourceIndexResponse = await this._client.indices.exists({index: sourceIndex});
     if (destinationIndexResponse.statusCode === 404) {
       throw new Error(`Index does not exist. Cannot reindex data from ${sourceIndex} to non-existent ${destinationIndex}`);
     }
-    return this._client.reindex({
-      body: {
-        source: { index: sourceIndex },
-        dest: { index: destinationIndex }
+    if (sourceIndexResponse.statusCode === 404) {
+      throw new Error(`Source index ${sourceIndex} provided for reindex operation does not exist`);
+    }
+
+    try {
+      await this._client.reindex({
+        body: {
+          source: { index: sourceIndex },
+          dest: { index: destinationIndex }
+        }
+      });
+    } catch (e) {
+      throw new Error(`Error occured during reindex operation: Source index: ${sourceIndex}, Destination index: ${destinationIndex}`);
+    }
+
+    const sourceIndexAliasesResponse = await this._client.cat.aliases({v: true, s: 'alias'});
+    const aliases = Object.values(sourceIndexAliasesResponse.body).filter((responseBody) => responseBody.index === sourceIndex).map((responseBody) => ({name: responseBody.alias, index: responseBody.index}));
+
+    try {
+      for (const alias of aliases) {
+        await this.upsertIndexAlias(alias.name, destinationIndex, sourceIndex);
       }
-    });
+      return {statusCode: 200, body: aliases};
+    } catch (e) {
+      throw new Error('Error during upserting aliases');
+    }
   }
 
   private async _mappingsPayload(index: string, workingDirectory: string, mappingsPath: string) {
