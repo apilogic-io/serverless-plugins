@@ -1,22 +1,22 @@
-import {Client, ClientOptions} from '@opensearch-project/opensearch';
+import { Client, ClientOptions } from '@opensearch-project/opensearch';
 import {
   IndicesCreate,
   IndicesDeleteAlias,
   IndicesPutAlias,
   IndicesPutMapping,
 } from '@opensearch-project/opensearch/api/requestParams';
-import {RequestBody} from '@opensearch-project/opensearch/lib/Transport';
+import { RequestBody } from '@opensearch-project/opensearch/lib/Transport';
 import * as fs from 'fs';
-import {DataApiClientModule} from '../DataApiClientModule';
-import {ApiClient} from './ApiClient';
+import { DataApiClientModule } from '../DataApiClientModule';
+import { ApiClient } from './ApiClient';
 import ClientConfig = DataApiClientModule.ClientConfig;
 
-export class ESClient implements ApiClient {
+export class OpensearchClient implements ApiClient {
   private readonly _client: Client;
   private _payload;
 
   constructor(config: ClientConfig) {
-    this._client = ESClient.initClient(config);
+    this._client = OpensearchClient.initClient(config);
   }
 
   getClient(): Client {
@@ -66,7 +66,7 @@ export class ESClient implements ApiClient {
     mappingsPath: string,
     alias: string
   ): Promise<unknown> {
-    if(!alias){
+    if (!alias) {
       throw new Error(`Alias must be provided!`);
     }
     const indexExist = await this._client.indices.exists({ index });
@@ -93,7 +93,12 @@ export class ESClient implements ApiClient {
           index: oldIndexName,
           name: aliasName,
         };
-        console.log(`Delete alias ${aliasName} from index ${oldIndexName}`);
+        console.log(`Delete
+        alias
+        ${aliasName}
+        from
+        index
+        ${oldIndexName}`);
         await this._client.indices.delete_alias(requestParams);
       } catch (error) {
         console.warn(error);
@@ -109,7 +114,7 @@ export class ESClient implements ApiClient {
     }
   }
 
-   async updateIndex(index: string, workingDir: string, mappingsPath: string): Promise<unknown> {
+  async updateIndex(index: string, workingDir: string, mappingsPath: string): Promise<unknown> {
     return this._mappingsPayload(index, workingDir, mappingsPath);
   }
 
@@ -121,26 +126,28 @@ export class ESClient implements ApiClient {
     try {
       return this._client.putScript({
         id,
-        body
+        body,
       });
     } catch (e) {
-      throw new Error(`Error inserting script with id: ${id}`)
+      throw new Error(`Error inserting script with id: ${id}`);
     }
   }
 
   async deleteScript(id: string): Promise<unknown> {
     try {
-      return this._client.deleteScript({id});
+      return this._client.deleteScript({ id });
     } catch (e) {
-      throw new Error(`Error deleting script with id: ${id}`)
+      throw new Error(`Error deleting script with id: ${id}`);
     }
   }
 
   async reindexData(sourceIndex: string, destinationIndex: string): Promise<unknown> {
-    const destinationIndexResponse = await this._client.indices.exists({index: destinationIndex});
-    const sourceIndexResponse = await this._client.indices.exists({index: sourceIndex});
+    const destinationIndexResponse = await this._client.indices.exists({ index: destinationIndex });
+    const sourceIndexResponse = await this._client.indices.exists({ index: sourceIndex });
     if (destinationIndexResponse.statusCode === 404) {
-      throw new Error(`Index does not exist. Cannot reindex data from ${sourceIndex} to non-existent ${destinationIndex}`);
+      throw new Error(
+        `Index does not exist. Cannot reindex data from ${sourceIndex} to non-existent ${destinationIndex}`
+      );
     }
     if (sourceIndexResponse.statusCode === 404) {
       throw new Error(`Source index ${sourceIndex} provided for reindex operation does not exist`);
@@ -150,21 +157,25 @@ export class ESClient implements ApiClient {
       await this._client.reindex({
         body: {
           source: { index: sourceIndex },
-          dest: { index: destinationIndex }
-        }
+          dest: { index: destinationIndex },
+        },
       });
     } catch (e) {
-      throw new Error(`Error occured during reindex operation: Source index: ${sourceIndex}, Destination index: ${destinationIndex}`);
+      throw new Error(
+        `Error occured during reindex operation: Source index: ${sourceIndex}, Destination index: ${destinationIndex}`
+      );
     }
 
-    const sourceIndexAliasesResponse = await this._client.cat.aliases({v: true, format: 'json'});
-    const aliases = (sourceIndexAliasesResponse.body as Array<unknown>).filter((responseBody) => responseBody['index'] === sourceIndex).map((responseBody) => ({name: responseBody['alias']}));
+    const sourceIndexAliasesResponse = await this._client.cat.aliases({ v: true, format: 'json' });
+    const aliases = (sourceIndexAliasesResponse.body as Array<unknown>)
+      .filter((responseBody) => responseBody['index'] === sourceIndex)
+      .map((responseBody) => ({ name: responseBody['alias'] }));
 
     try {
       for (const alias of aliases) {
         await this.upsertIndexAlias(alias.name, destinationIndex, sourceIndex);
       }
-      return {statusCode: 200, body: aliases};
+      return { statusCode: 200, body: aliases };
     } catch (e) {
       throw new Error('Error during upserting aliases');
     }

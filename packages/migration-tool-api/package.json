@@ -36,8 +36,9 @@
     "ts-node": "10.8.1"
   },
   "dependencies": {
-    "@opensearch-project/opensearch": "2.2.0",
-    "aws-sdk": "^2.828.0"
+    "@opensearch-project/opensearch": "^2.5.0",
+    "@aws-sdk/client-dynamodb": "^3.504.0",
+    "@travelhubx/aws": "^0.0.6"
   },
   "publishConfig": {
     "access": "public"

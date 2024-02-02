@@ -1,7 +1,7 @@
 import { ApiClient } from './clients/ApiClient';
 import { Config } from './clients/config/Config';
 import { DynamoClient } from './clients/dynamo/DynamoClient';
-import { ESClient } from './clients/ESClient';
+import { OpensearchClient } from './clients/OpensearchClient';
 
 export namespace DataApiClientModule {
   export interface ClientConfig {
@@ -21,7 +21,7 @@ export namespace DataApiClientModule {
       const clientType = clientConfig.clientType;
       switch (clientType) {
         case 'AMAZON_ELASTICSEARCH':
-          return new ESClient(clientConfig);
+          return new OpensearchClient(clientConfig);
         case 'AMAZON_DYNAMODB':
           return new DynamoClient({ config: clientConfig, options: '' });
       }
