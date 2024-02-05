@@ -42,12 +42,10 @@ export class Migration {
     return {
       version: '2017-02-28',
       operation: 'PutItem',
-      key: {
-        id: { S: uuidv4() },
-      },
-      attributeValues: {
-        migration_id: { S: this.id },
-      },
+      item: {
+        id: uuidv4(),
+        migration_id: this.id,
+      }
     };
   }
 }

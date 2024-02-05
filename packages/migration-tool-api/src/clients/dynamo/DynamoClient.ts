@@ -20,11 +20,11 @@ export class DynamoClient extends DynamodbService<unknown> implements ApiClient 
         case 'GetItem':
           return await this.getItemById(payload);
         case 'PutItem':
-          return await this.putItem(payload);
+          return await this.putItem(payload.item);
         case 'UpdateItem':
           return await this.updateItem(payload);
         case 'Scan':
-          return await this.scan(payload);
+          return await this.scan();
         default:
           throw new Error(`Unknown operation name: ${payload.operation}`);
       }
