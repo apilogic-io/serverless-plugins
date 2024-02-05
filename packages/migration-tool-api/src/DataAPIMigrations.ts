@@ -30,7 +30,7 @@ export class ApiLogicDataMigration {
 
   public async getAppliedMigrationIds(): Promise<string[]> {
     const result = await this.migrationAPI.fetchMigrations();
-    return result.items.map((it) => it.migration_id);
+    return result.map((it) => it.migration_id);
   }
 
   public async applyMigrations(): Promise<string[]> {
