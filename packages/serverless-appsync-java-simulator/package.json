@@ -34,6 +34,7 @@
   "license": "MIT",
   "dependencies": {
     "amplify-nodejs-function-runtime-provider": "^2.5.14",
+    "amplify-appsync-simulator": "^2.4.1",
     "aws-sdk": "^2.1534.0",
     "axios": "^1.6.5",
     "cfn-resolver-lib": "^1.1.7",
@@ -48,8 +49,7 @@
   },
   "devDependencies": {
     "@types/fb-watchman": "^2.0.4",
-    "@types/serverless": "3.12.7",
-    "amplify-appsync-simulator": "^2.4.1",
+    "@types/serverless": "3.12.22",
     "asl-types": "^1.2.1",
     "prettier": "^3.1.1",
     "serverless": "^3.23.0",

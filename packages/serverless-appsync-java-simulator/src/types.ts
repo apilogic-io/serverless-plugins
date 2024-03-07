@@ -10,7 +10,6 @@ import {
   RESOLVER_KIND,
 } from 'amplify-appsync-simulator/lib/type-definition';
 import * as Serverless from 'serverless';
-import * as Service from 'serverless/classes/Service';
 
 // from https://stackoverflow.com/a/49725198/3296811
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
@@ -34,7 +33,18 @@ export type AppSyncSimulatorCustomFunctionsConfig = AppSyncSimulatorFunctionsCon
 export type AppsyncSimulatorAuthenticationConfig = {
   type: AmplifyAppSyncSimulatorAuthenticationType;
   config: {
-    AppIdClientRegex: string;
+    cognitoUserPoolConfig: {
+      AppIdClientRegex: string;
+      awsRegion: string;
+      defaultAction: string;
+      userPoolId: string;
+    };
+    userPoolConfig: {
+      AppIdClientRegex: string;
+      awsRegion: string;
+      defaultAction: string;
+      userPoolId: string;
+    };
     openIDConnectConfig: {
       Issuer: string;
       ClientId: string;
@@ -43,9 +53,9 @@ export type AppsyncSimulatorAuthenticationConfig = {
 };
 
 export type AppSyncSimulatorCustomConfig = AmplifyAppSyncSimulatorCustomConfig & {
-  resolvers: { [key: string]: AmplifyAppSyncSimulatorCustomMappingTemplate };
-  pipelineFunctions: { [key: string]: AppSyncSimulatorCustomFunctionsConfig };
-  dataSources: { [key: string]: AppSyncSimulatorDataSourceConfig };
+  resolvers: [{ [key: string]: AmplifyAppSyncSimulatorCustomMappingTemplate }];
+  pipelineFunctions: [{ [key: string]: AppSyncSimulatorCustomFunctionsConfig }];
+  dataSources: [{ [key: string]: AppSyncSimulatorDataSourceConfig }];
   authentication: AppsyncSimulatorAuthenticationConfig;
   additionalAuthentications: AppsyncSimulatorAuthenticationConfig[];
 };
@@ -147,14 +157,6 @@ const MappingTemplateType = {
   MAPPING_TEMPLATE: 'mappingTemplate',
   FUNCTION_CONFIGURATION: 'functionConfiguration',
 };
-
-export class ServerlessServiceWithAppsync extends Service {
-  appSync: any;
-}
-
-export class ServerlessWithAppsync extends Serverless {
-  service: ServerlessServiceWithAppsync;
-}
 
 export {
   DEFAULT_MAPPING_TEMPLATE_LOCATION,

@@ -8,7 +8,7 @@ import { inspect } from 'util';
 import { AppSyncSimulatorConfig } from './appsync-simulator-config';
 import { ElasticDataLoader } from './data-loaders/elastic-data-loader';
 import { HttpDataLoader } from './data-loaders/http-data-loader';
-import { Options, ServerlessWithAppsync } from './types';
+import { Options } from './types';
 
 const resolverPathMap = {
   'AWS::DynamoDB::Table': 'Properties.TableName',
@@ -16,7 +16,7 @@ const resolverPathMap = {
 };
 
 class ServerlessAppSyncSimulator implements ServerlessPlugin {
-  serverless: ServerlessWithAppsync;
+  serverless: Serverless;
   options: Options;
   logger: ServerlessPlugin.Logging;
   commands: ServerlessPlugin.Commands;
@@ -24,7 +24,7 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
   simulator: AmplifyAppSyncSimulator;
   resourceResolvers: any;
 
-  constructor(serverless: ServerlessWithAppsync, options: Options, log) {
+  constructor(serverless: Serverless, options: Options, log) {
     this.serverless = serverless;
     this.options = options;
     this.logger = log;
@@ -33,7 +33,7 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
     // @ts-ignore
     addDataLoader('HTTP', HttpDataLoader);
     // @ts-ignore
-    addDataLoader(AppSyncSimulatorDataSourceType.OpenSearch, ElasticDataLoader);
+    addDataLoader('AMAZON_OPENSEARCH_SERVICE', ElasticDataLoader);
 
     this.hooks = {
       'before:offline:start': this.startServer.bind(this),
@@ -55,8 +55,10 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
     try {
       this.buildResolvedOptions();
       this.buildResourceResolvers();
-      this.serverless.service.functions = this.resolveResources(this.serverless.service.functions);
-      this.serverless.service.appSync = this.resolveResources(this.serverless.service.appSync);
+      this.serverless.service.functions = this.resolveResources(this.serverless['configurationInput'].functions);
+      this.serverless['configurationInput'].appSync = this.resolveResources(
+        this.serverless['configurationInput'].appSync
+      );
 
       this.simulator = new AmplifyAppSyncSimulator({
         port: this.options.port as number,
@@ -70,8 +72,8 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
         this.initServer();
       }
 
-      this.log(`AppSync endpoint: ${this.simulator.url}/graphql`);
-      this.log(`GraphiQl: ${this.simulator.url}`);
+      console.log(`AppSync endpoint: ${this.simulator.url}/graphql`);
+      console.log(`GraphiQl: ${this.simulator.url}`);
     } catch (error) {
       this.log(error, { color: 'red' });
     }
@@ -79,9 +81,9 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
 
   initServer() {
     // TODO: suport several API's
-    const appSync = Array.isArray(this.serverless.service.custom.appSync)
-      ? this.serverless.service.custom.appSync[0]
-      : this.serverless.service.custom.appSync;
+    const appSync = Array.isArray(this.serverless['configurationInput'].appSync)
+      ? this.serverless['configurationInput'].appSync[0]
+      : this.serverless['configurationInput'].appSync;
     const appSyncSimulatorConfig = new AppSyncSimulatorConfig(
       {
         plugin: this,
@@ -188,6 +190,7 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
   }
 
   buildResolvedOptions() {
+    const dynamoDbOptions = this.serverless.service.custom['appsync-offline'].dynamodb.client;
     this.options = merge(
       {
         apiKey: '0123456789',
@@ -201,10 +204,10 @@ class ServerlessAppSyncSimulator implements ServerlessPlugin {
         getAttMap: {},
         importValueMap: {},
         dynamoDb: {
-          endpoint: `http://localhost:${get(this.serverless.service, 'custom.dynamodb.start.port', 8000)}`,
-          region: 'localhost',
-          accessKeyId: 'DEFAULT_ACCESS_KEY',
-          secretAccessKey: 'DEFAULT_SECRET',
+          endpoint: dynamoDbOptions.endpoint,
+          region: dynamoDbOptions.region,
+          accessKeyId: dynamoDbOptions.accessKeyId,
+          secretAccessKey: dynamoDbOptions.secretAccessKey,
         },
       },
       get(this.serverless.service, 'custom.appsync-simulator', {})

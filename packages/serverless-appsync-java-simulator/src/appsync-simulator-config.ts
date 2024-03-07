@@ -15,8 +15,6 @@ import {
   AppSyncSimulatorUnitResolverConfig,
   RESOLVER_KIND,
 } from 'amplify-appsync-simulator/lib/type-definition';
-import { invoke } from 'amplify-nodejs-function-runtime-provider/lib/utils/invoke';
-import axios from 'axios';
 import * as fs from 'fs';
 import { first, forEach, isNil } from 'lodash';
 import { mergeTypes } from 'merge-graphql-schemas';
@@ -24,8 +22,8 @@ import * as path from 'path';
 import * as Serverless from 'serverless';
 import * as ServerlessPlugin from 'serverless/classes/Plugin';
 import { invokeResource } from './runtime-providers/java/invoke';
+import { invokeServerlessLocalResource } from './runtime-providers/nodejs/invoke';
 import {
-  AmplifyAppSyncSimulatorCustomConfig,
   AmplifyAppSyncSimulatorCustomMappingTemplate,
   AppSyncSimulatorCustomConfig,
   AppSyncSimulatorCustomFunctionsConfig,
@@ -50,7 +48,7 @@ const directLambdaMappingTemplates = {
 
 export interface AppSyncSimulatorConfigContext {
   plugin: ServerlessPlugin;
-  serverless: Serverless;
+  serverless: {};
   options: Options;
 }
 
@@ -61,7 +59,7 @@ export class AppSyncSimulatorConfig {
 
   constructor(private context: AppSyncSimulatorConfigContext, private appSyncConfig: AppSyncSimulatorCustomConfig) {
     this.mappingTemplatesLocation = path.join(
-      context.serverless.config.servicePath,
+      context.serverless['config'].servicePath,
       appSyncConfig.resolversLocation || DEFAULT_MAPPING_TEMPLATE_LOCATION
     );
     this.defaultMappingTemplates = appSyncConfig.defaultMappingTemplates;
@@ -72,7 +70,7 @@ export class AppSyncSimulatorConfig {
       ? this.appSyncConfig.schema
       : [this.appSyncConfig.schema || 'schema.graphql'];
     const schemas: AppSyncSimulatorSchemaConfig[] = schemaPaths.map((schemaPath) =>
-      this.getFileMap(this.context.serverless.config.servicePath, schemaPath)
+      this.getFileMap(this.context.serverless['config'].servicePath, schemaPath)
     );
     const schema: AppSyncSimulatorSchemaConfig = {
       path: first(schemas).path,
@@ -82,30 +80,44 @@ export class AppSyncSimulatorConfig {
     return {
       appSync: this.makeAppSync(),
       schema,
-      resolvers: Object.values(this.appSyncConfig.resolvers).map((mappingTemplate) =>
-        this.makeResolver(mappingTemplate, this)
-      ),
-      dataSources: Object.values(this.appSyncConfig.dataSources)
-        .map((datasource) => this.makeDataSource(datasource, this))
-        .filter((v) => v !== null),
-      functions: Object.values(this.appSyncConfig.pipelineFunctions).map((functionConfiguration) =>
-        this.makeFunctionConfiguration(functionConfiguration, this)
-      ),
+      resolvers: Object.values(this.appSyncConfig.resolvers)
+        .map((mappingTemplate) => Object.values(mappingTemplate).map((fc) => this.makeResolver(fc, this)))
+        .flat(),
+      dataSources: this.appSyncConfig.dataSources
+        .map((datasource) => {
+          return Object.entries(datasource).map((entry) => {
+            const [key, value] = entry;
+            return this.makeDataSource({ key, value }, this);
+          });
+        })
+        .filter((v) => v !== null)
+        .flat(),
+      functions: this.appSyncConfig.pipelineFunctions
+        .map((functionConfiguration) => {
+          return Object.entries(functionConfiguration).map((entry) => {
+            const [key, value] = entry;
+            return this.makeFunctionConfiguration({ key, value }, this);
+          });
+          // Object.values(functionConfiguration).map((fc) => this.makeFunctionConfiguration(fc, this))
+        })
+        .flat(),
     };
   }
 
   makeFunctionConfiguration(
-    config: AppSyncSimulatorCustomFunctionsConfig,
+    source: { key: string; value: AppSyncSimulatorCustomFunctionsConfig },
     instance: AppSyncSimulatorConfig
   ): AppSyncSimulatorFunctionsConfig & {
     requestMappingTemplate: string;
     responseMappingTemplate: string;
   } {
+    const config = source.value;
+    const name = source.key;
     const vtlResponse = this.makeMappingTemplate(config, 'response', instance);
     const vtlRequest = this.makeMappingTemplate(config, 'request', instance);
     return {
       dataSourceName: config.dataSource,
-      name: config.name,
+      name: name,
       requestMappingTemplateLocation: vtlRequest,
       responseMappingTemplateLocation: vtlResponse,
       requestMappingTemplate: vtlRequest,
@@ -140,56 +152,60 @@ export class AppSyncSimulatorConfig {
   }
 
   makeDataSource(
-    source: AppSyncSimulatorDataSourceCustomConfig,
+    source: { key: string; value: AppSyncSimulatorDataSourceCustomConfig },
     instance: AppSyncSimulatorConfig
   ): AppSyncSimulatorDataSourceConfig {
-    if (source.name === undefined || source.type === undefined) {
+    const name = source.key;
+    var dataSourceConfig = source.value;
+    if (name === undefined || dataSourceConfig.type === undefined) {
       return null;
     }
 
     const dataSource = {
-      name: source.name,
-      type: source.type,
+      name: name,
+      type: dataSourceConfig.type,
     };
 
-    switch (source.type) {
+    // @ts-ignore
+    switch (dataSourceConfig.type) {
       case 'AMAZON_DYNAMODB': {
         return {
           ...dataSource,
           config: {
             ...instance.context.options.dynamoDb,
-            tableName: source.config.tableName,
+            tableName: dataSourceConfig.config.tableName,
           },
         } as AppSyncSimulatorDataSourceDDBConfig;
       }
       case 'AWS_LAMBDA': {
-        const functionName = source.name;
+        const functionName = name;
         if (functionName === undefined) {
-          instance.logger.log.error(`${source.name} does not have a functionName`, {
+          instance.logger.log.error(`${name} does not have a functionName`, {
             color: 'orange',
           });
           return null;
         }
 
-        const conf = instance.context.options;
-        if (conf.functions && conf.functions[functionName] !== undefined) {
-          const func = conf.functions[functionName];
-          return {
-            ...dataSource,
-            invoke: async (payload) => {
-              const result = await axios.request({
-                url: func.url,
-                method: func.method,
-                data: payload,
-                validateStatus: (a) => false,
-              });
-              return result.data;
-            },
-          } as AppSyncSimulatorDataSourceLambdaConfig;
-        }
+        // const conf = instance.context.options;
+        // const functions = instance.context.serverless['configurationInput'].functions;
+        // if (conf.functions && conf.functions[functionName] !== undefined) {
+        //   const func = conf.functions[functionName];
+        //   return {
+        //     ...dataSource,
+        //     invoke: async (payload) => {
+        //       const result = await axios.request({
+        //         url: func.url,
+        //         method: func.method,
+        //         data: payload,
+        //         validateStatus: (a) => false,
+        //       });
+        //       return result.data;
+        //     },
+        //   } as AppSyncSimulatorDataSourceLambdaConfig;
+        // }
 
         const func: Serverless.FunctionDefinitionHandler | Serverless.FunctionDefinitionImage =
-          this.context.serverless.service.functions[functionName];
+          this.context.serverless['configurationInput'].functions[functionName];
         if (func === undefined) {
           instance.logger.log.error(`The ${functionName} function is not defined`, {
             color: 'orange',
@@ -203,14 +219,16 @@ export class AppSyncSimulatorConfig {
               invokeResource(
                 {
                   runtime: 'java',
-                  srcRoot: path.join(instance.context.serverless.config.servicePath, instance.context.options.location),
+                  srcRoot: path.join(
+                    instance.context.serverless['config'].servicePath,
+                    instance.context.options.location
+                  ),
                   handler: 'handler' in func ? func.handler : func.name,
                   package: func.environment.servicePackage,
                   event: JSON.stringify(payload),
                   debug: func.environment.debug !== undefined ? func.environment.debug === 'true' : false,
                   envVars: {
                     ...(instance.context.options.lambda.loadLocalEnv === true ? process.env : {}),
-                    ...instance.context.serverless.service.provider['environment'],
                     ...func.environment,
                   },
                 },
@@ -221,28 +239,33 @@ export class AppSyncSimulatorConfig {
           return {
             ...dataSource,
             invoke: (payload) =>
-              invoke({
-                packageFolder: path.join(
-                  instance.context.serverless.config.servicePath,
-                  instance.context.options.location
-                ),
-                handler: 'handler' in func ? func.handler : func.name,
-                event: JSON.stringify(payload),
-                environment: {
-                  ...(instance.context.options.lambda.loadLocalEnv === true ? process.env : {}),
-                  ...instance.context.serverless.service.provider['environment'],
-                  ...func.environment,
+              invokeServerlessLocalResource(
+                {
+                  packageFolder: path.join(
+                    instance.context.serverless['config'].servicePath,
+                    instance.context.options.location
+                  ),
+                  handler: 'handler' in func ? func.handler : func.name,
+                  event: JSON.stringify(payload),
+                  environment: {
+                    ...(instance.context.options.lambda.loadLocalEnv === true ? process.env : {}),
+                    ...instance.context.serverless['service'].provider['environment'],
+                    ...func.environment,
+                  },
                 },
-              }),
+                instance.context
+              ),
           } as AppSyncSimulatorDataSourceLambdaConfig;
         }
       }
       case 'AMAZON_ELASTICSEARCH':
+      // @ts-ignore
+      case 'AMAZON_OPENSEARCH_SERVICE':
       case 'HTTP': {
         // @ts-ignore
         return {
           ...dataSource,
-          endpoint: source['endpoint'],
+          endpoint: source.value['config'].endpoint,
         } as AppSyncSimulatorOpenSearchConfig;
       }
       default:
@@ -305,9 +328,7 @@ export class AppSyncSimulatorConfig {
     if (authType === AuthTypes.AMAZON_COGNITO_USER_POOLS) {
       return {
         authenticationType: authType,
-        cognitoUserPoolConfig: {
-          AppIdClientRegex: apiConfig.authentication.config.AppIdClientRegex,
-        },
+        cognitoUserPoolConfig: apiConfig.authentication.config.cognitoUserPoolConfig,
       };
     } else if (authType === AuthTypes.OPENID_CONNECT) {
       return {

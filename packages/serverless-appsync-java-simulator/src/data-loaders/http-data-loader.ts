@@ -36,8 +36,8 @@ export class HttpDataLoader {
   async load(req): Promise<any> {
     try {
       const { data, status, headers } = await axios.request({
-        baseURL: this.config.config.endpoint,
-        validateStatus: (status: number) => false,
+        // @ts-ignore
+        baseURL: this.config.endpoint,
         url: req.resourcePath,
         headers: req.params.headers,
         params: req.params.query,
@@ -46,12 +46,18 @@ export class HttpDataLoader {
         data: req.params.body,
       });
 
-      return {
-        headers,
-        statusCode: status,
-        body: JSON.stringify(data),
-      };
+      if (status === 200) {
+        return {
+          headers,
+          statusCode: status,
+          body: JSON.stringify(data),
+        };
+      } else {
+        // Handle non-200 status codes here
+        console.log(`Request failed with status code ${status}`);
+      }
     } catch (err) {
+      // Handle other errors (e.g., network issues, timeouts)
       console.log(err);
     }
 
