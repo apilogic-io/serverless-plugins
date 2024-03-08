@@ -6,8 +6,7 @@ import { ServerlessLocalInvocationRequest } from './invocation.request';
 export const invokeServerlessLocalResource = async (options: InvokeOptions, context: any) => {
   const childProcess = execa.node(executorPath, [], {
     env: options.environment,
-    extendEnv: false,
-    stdio: ['ignore', 'inherit', 'inherit', 'pipe'],
+    extendEnv: true,
   });
   childProcess.send(options);
   // const childProcess = execa(
