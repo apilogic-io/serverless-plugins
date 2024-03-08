@@ -6,7 +6,8 @@ import { JavaInvocationRequest } from './invocation.request';
 
 export const invokeResource = async (request: JavaInvocationRequest, context: any) => {
   const [handlerClassName, handlerMethodName] = request.handler.split('::');
-  let debug = '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005';
+  const debugMode = process.env['JAVA_LAMBDA_DEBUG'] ? 'y' : 'n';
+  let debug = `-agentlib:jdwp=transport=dt_socket,server=y,suspend=${debugMode},address=*:5005`;
   if (request.debug) {
     debug = '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005';
   }
