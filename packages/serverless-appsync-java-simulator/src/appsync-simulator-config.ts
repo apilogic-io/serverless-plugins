@@ -74,7 +74,7 @@ export class AppSyncSimulatorConfig {
     );
     const schema: AppSyncSimulatorSchemaConfig = {
       path: first(schemas).path,
-      content: mergeTypes(schemas.map((s) => s.content)),
+      content: mergeTypes(schemas.map((s) => this.removeAnnotate(s.content))),
     };
 
     return {
@@ -102,6 +102,10 @@ export class AppSyncSimulatorConfig {
         })
         .flat(),
     };
+  }
+
+  removeAnnotate(content: string): string {
+    return content.replace(/@annotate\([^)]*\)/g, '');
   }
 
   makeFunctionConfiguration(
