@@ -46,19 +46,19 @@ export class HttpDataLoader {
         data: req.params.body,
       });
 
-      if (status === 200) {
-        return {
-          headers,
-          statusCode: status,
-          body: JSON.stringify(data),
-        };
-      } else {
-        // Handle non-200 status codes here
-        console.log(`Request failed with status code ${status}`);
-      }
+      return {
+        headers,
+        statusCode: status,
+        body: JSON.stringify(data),
+      };
+
     } catch (err) {
-      // Handle other errors (e.g., network issues, timeouts)
-      console.log(err);
+      const response =  {
+        headers: err.response.headers,
+        statusCode: err.response.status,
+        body: JSON.stringify(err.response.data),
+      };
+      return response;
     }
 
     return null;
