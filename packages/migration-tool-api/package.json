@@ -1,6 +1,6 @@
 {
   "name": "@apilogic/migration-tool-api",
-  "version": "1.3.6",
+  "version": "1.4.3",
   "composite": true,
   "private": false,
   "description": "Universal sql/no-sql database serverless migration tool",
