@@ -162,7 +162,7 @@ export class OpensearchClient implements ApiClient {
       });
     } catch (e) {
       throw new Error(
-        `Error occured during reindex operation: Source index: ${sourceIndex}, Destination index: ${destinationIndex}`
+        `Error occured during reindex operation: Source index: ${sourceIndex}, Destination index: ${destinationIndex} with error: ${e}`
       );
     }
 
